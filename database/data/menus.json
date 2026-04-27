@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "name": "Paket Nasi Kotak A",
+        "category": "NASI KOTAK",
+        "price": 25000,
+        "stock": 150,
+        "description": "Nasi Putih, Ayam Goreng, Sambal Goreng Ati, Sayur, Kerupuk.",
+        "image": "images/nasi_kotak.png"
+    },
+    {
+        "id": 2,
+        "name": "Tumpeng Mini Mewah",
+        "category": "TUMPENG",
+        "price": 45000,
+        "stock": 20,
+        "description": "Tumpeng Kuning dengan 7 macam lauk pauk lengkap dan hiasan cantik.",
+        "image": "images/tumpeng.png"
+    },
+    {
+        "id": 3,
+        "name": "Paket Snack Box A",
+        "category": "SNACK BOX",
+        "price": 15000,
+        "stock": 100,
+        "description": "Lemper, Sosis Solo, Kue Sus, Air Mineral.",
+        "image": "https://images.unsplash.com/photo-1599481238640-4c1288750d7a?auto=format&fit=crop&q=80&w=800"
+    }
+]
