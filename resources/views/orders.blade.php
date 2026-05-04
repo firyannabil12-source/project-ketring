@@ -291,7 +291,36 @@
                                         <div class="lbl">Alamat Acara</div>
                                         <div class="val">{{ $order->event_address ?? '-' }}</div>
                                     </div>
+                                    <div class="order-info-item">
+                                        <div class="lbl">Pembayaran</div>
+                                        <div class="val">
+                                            <span style="text-transform: capitalize;">{{ $order->payment_method ?? 'Cash/Transfer' }}</span>
+                                            @if($order->payment_status === 'unpaid')
+                                                <span style="color: #dc2626; font-size: 0.75rem; margin-left: 5px; font-weight: 700;">(Belum Dibayar)</span>
+                                            @elseif($order->payment_status === 'paid')
+                                                <span style="color: #16a34a; font-size: 0.75rem; margin-left: 5px; font-weight: 700;">(Lunas)</span>
+                                            @elseif($order->payment_status === 'expired')
+                                                <span style="color: #64748b; font-size: 0.75rem; margin-left: 5px; font-weight: 700;">(Kedaluwarsa)</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @if($order->estimation_time && in_array($order->status, ['diproses', 'selesai']))
+                                    <div class="order-info-item">
+                                        <div class="lbl">Estimasi Pembuatan</div>
+                                        <div class="val" style="color: #E8572A; font-weight: 800;">⏱️ {{ $order->estimation_time }}</div>
+                                    </div>
+                                    @endif
                                 </div>
+
+                                <!-- Payment Countdown -->
+                                @if($order->payment_status === 'unpaid' && $order->payment_expires_at && $order->payment_expires_at->isFuture())
+                                <div style="background: #fef2f2; border: 1px dashed #fca5a5; padding: 0.75rem; border-radius: 10px; margin-bottom: 1rem; text-align: center;">
+                                    <div style="font-size: 0.78rem; color: #dc2626; font-weight: 600; margin-bottom: 0.25rem;">Selesaikan Pembayaran Dalam:</div>
+                                    <div class="payment-countdown" data-expires-at="{{ $order->payment_expires_at->toIso8601String() }}" data-order-id="{{ $order->id }}" style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: #991b1b; letter-spacing: 2px;">
+                                        --:--
+                                    </div>
+                                </div>
+                                @endif
 
                                 <!-- Progress -->
                                 @if($order->status !== 'dibatalkan')
@@ -406,6 +435,16 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Metode Pembayaran *</label>
+                                <select name="payment_method" required style="width: 100%; padding: 0.7rem 0.875rem; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.875rem; font-family: 'Inter', sans-serif; color: #0f172a; outline: none; background: #f8fafc;">
+                                    <option value="" disabled selected>Pilih metode pembayaran</option>
+                                    <option value="duitku">Duitku (Virtual Account / e-Wallet)</option>
+                                    <option value="cash">Bayar di Tempat (Cash)</option>
+                                </select>
+                                @error('payment_method')<p class="field-error">{{ $message }}</p>@enderror
+                            </div>
+
+                            <div class="form-group">
                                 <label>Catatan Tambahan</label>
                                 <textarea name="notes" placeholder="Permintaan khusus, alergi makanan, dll.">{{ old('notes') }}</textarea>
                             </div>
@@ -511,5 +550,26 @@ function pollOrderStatus() {
 if (orderIds.length > 0) {
     setInterval(pollOrderStatus, 15000);
 }
+
+// ─── Payment Countdown Timer ──────────────────────────────────
+function updateCountdowns() {
+    document.querySelectorAll('.payment-countdown').forEach(el => {
+        const expiresAt = new Date(el.dataset.expiresAt).getTime();
+        const now = new Date().getTime();
+        const distance = expiresAt - now;
+
+        if (distance < 0) {
+            el.innerHTML = "WAKTU HABIS";
+            el.style.color = "#64748b";
+            // Optional: You could trigger an API call to mark as expired if you don't do it via cron.
+        } else {
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            el.innerHTML = String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
+        }
+    });
+}
+setInterval(updateCountdowns, 1000);
+updateCountdowns(); // initial call
 </script>
 @endsection

@@ -52,6 +52,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Pesanan
         Route::get('/pesanan', [AdminController::class, 'pesanan'])->name('pesanan');
         Route::patch('/pesanan/{order}/status', [AdminController::class, 'updateStatusPesanan'])->name('pesanan.status');
+        Route::post('/pesanan/{order}/konfirmasi-pembayaran', [AdminController::class, 'konfirmasiPembayaran'])->name('pesanan.konfirmasi_pembayaran');
         Route::get('/api/pending-count', [AdminController::class, 'apiPendingCount'])->name('api.pending');
     });
 });

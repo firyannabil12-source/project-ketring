@@ -158,6 +158,7 @@
                 <th>Menu Dipesan</th>
                 <th>Acara</th>
                 <th>Total</th>
+                <th>Pembayaran</th>
                 <th>Status</th>
                 <th>Waktu</th>
             </tr>
@@ -182,6 +183,24 @@
                     <div class="event-addr" title="{{ $order->event_address }}">📍 {{ $order->event_address ?? '-' }}</div>
                 </td>
                 <td class="total-price">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
+                <td>
+                    <div style="font-size: 0.78rem; font-weight: 700; text-transform: capitalize; color: #334155;">
+                        {{ $order->payment_method ?? 'Cash' }}
+                    </div>
+                    @if($order->payment_status === 'unpaid')
+                        <span style="display:inline-block; margin-bottom: 5px; padding: 2px 8px; background: #fee2e2; color: #dc2626; border-radius: 10px; font-size: 0.7rem; font-weight: 700;">Belum Lunas</span><br>
+                        <button onclick="openConfirmPaymentModal({{ $order->id }})" style="background: #16a34a; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                            ✅ Konfirmasi Bayar
+                        </button>
+                    @elseif($order->payment_status === 'paid')
+                        <span style="display:inline-block; margin-bottom: 5px; padding: 2px 8px; background: #dcfce7; color: #15803d; border-radius: 10px; font-size: 0.7rem; font-weight: 700;">Lunas</span><br>
+                        @if($order->estimation_time)
+                            <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">⏱️ {{ $order->estimation_time }}</div>
+                        @endif
+                    @elseif($order->payment_status === 'expired')
+                        <span style="display:inline-block; margin-bottom: 5px; padding: 2px 8px; background: #f1f5f9; color: #64748b; border-radius: 10px; font-size: 0.7rem; font-weight: 700;">Kedaluwarsa</span>
+                    @endif
+                </td>
                 <td>
                     <select class="status-select {{ $order->status }}"
                             data-order-id="{{ $order->id }}"
@@ -214,6 +233,26 @@
     {{ $orders->links() }}
 </div>
 @endif
+
+<!-- Modal Konfirmasi Pembayaran -->
+<div id="paymentModalOverlay" style="display:none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9998; backdrop-filter: blur(2px);"></div>
+<div id="paymentModal" style="display:none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 16px; z-index: 9999; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 90%; max-width: 400px;">
+    <h3 style="margin-top:0; font-family:'Outfit',sans-serif; color:#0f172a;">✅ Konfirmasi Pembayaran</h3>
+    <p style="font-size:0.875rem; color:#64748b; margin-bottom:1.5rem;">Pesanan akan ditandai Lunas dan status berubah menjadi Diproses.</p>
+    
+    <form id="confirmPaymentForm">
+        <input type="hidden" id="confirmOrderId">
+        <div style="margin-bottom: 1rem;">
+            <label style="display:block; font-size:0.78rem; font-weight:700; margin-bottom:0.5rem; color:#475569;">Estimasi Waktu Pembuatan (Opsional)</label>
+            <input type="text" id="estimationTime" placeholder="Contoh: 45 Menit, 1 Jam" style="width: 100%; padding: 0.7rem; border: 1.5px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-family:'Inter',sans-serif; font-size:0.875rem;">
+        </div>
+        <div style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.5rem;">
+            <button type="button" onclick="closeConfirmPaymentModal()" style="padding: 0.6rem 1rem; border: none; background: #f1f5f9; color: #475569; border-radius: 8px; cursor: pointer; font-weight: 600;">Batal</button>
+            <button type="submit" style="padding: 0.6rem 1rem; border: none; background: #16a34a; color: white; border-radius: 8px; cursor: pointer; font-weight: 700;">Konfirmasi & Simpan</button>
+        </div>
+    </form>
+</div>
+
 
 @endsection
 
@@ -262,6 +301,46 @@ function filterStatus(btn, status) {
         row.style.display = (status === 'all' || row.dataset.status === status) ? '' : 'none';
     });
 }
+
+// Payment Confirmation Logic
+function openConfirmPaymentModal(orderId) {
+    document.getElementById('confirmOrderId').value = orderId;
+    document.getElementById('estimationTime').value = '';
+    document.getElementById('paymentModalOverlay').style.display = 'block';
+    document.getElementById('paymentModal').style.display = 'block';
+}
+
+function closeConfirmPaymentModal() {
+    document.getElementById('paymentModalOverlay').style.display = 'none';
+    document.getElementById('paymentModal').style.display = 'none';
+}
+
+document.getElementById('confirmPaymentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const orderId = document.getElementById('confirmOrderId').value;
+    const estimation = document.getElementById('estimationTime').value;
+
+    fetch(`/admin/pesanan/${orderId}/konfirmasi-pembayaran`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ estimation_time: estimation })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+            setTimeout(() => window.location.reload(), 1000); // Reload to reflect full changes easily
+        } else {
+            showToast(data.message || 'Gagal konfirmasi pembayaran.', 'error');
+        }
+    })
+    .catch(() => showToast('Terjadi kesalahan jaringan.', 'error'))
+    .finally(() => closeConfirmPaymentModal());
+});
 
 // Auto-refresh countdown (30s)
 let countdown = 30;

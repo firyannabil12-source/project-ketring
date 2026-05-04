@@ -141,4 +141,23 @@ class AdminController extends Controller
             'pending' => Order::where('status', 'pending')->count(),
         ]);
     }
+
+    // ─── Konfirmasi Pembayaran ───────────────────────────────────
+    public function konfirmasiPembayaran(Request $request, Order $order)
+    {
+        $request->validate([
+            'estimation_time' => 'nullable|string|max:255',
+        ]);
+
+        $order->update([
+            'payment_status'  => 'paid',
+            'status'          => 'diproses',
+            'estimation_time' => $request->estimation_time,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pembayaran berhasil dikonfirmasi.',
+        ]);
+    }
 }

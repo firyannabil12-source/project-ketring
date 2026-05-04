@@ -110,6 +110,7 @@ class CartController extends Controller
             'customer_phone' => 'required|string|max:20',
             'event_date'     => 'required|date|after_or_equal:today',
             'event_address'  => 'required|string|max:500',
+            'payment_method' => 'required|string|in:duitku,cash',
             'notes'          => 'nullable|string|max:1000',
         ], [
             'customer_name.required'  => 'Nama pemesan wajib diisi.',
@@ -117,6 +118,7 @@ class CartController extends Controller
             'event_date.required'     => 'Tanggal acara wajib diisi.',
             'event_date.after_or_equal' => 'Tanggal acara tidak boleh di masa lalu.',
             'event_address.required'  => 'Alamat acara wajib diisi.',
+            'payment_method.required' => 'Metode pembayaran wajib dipilih.',
         ]);
 
         $cart = session('cart', []);
@@ -126,16 +128,25 @@ class CartController extends Controller
 
         $total = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
 
+        // Set waktu expired (misal 10 menit dari sekarang jika pakai Duitku)
+        $expiresAt = null;
+        if ($request->payment_method === 'duitku') {
+            $expiresAt = now()->addMinutes(10);
+        }
+
         // Simpan order
         $order = Order::create([
-            'user_id'        => \Illuminate\Support\Facades\Auth::id(),
-            'customer_name'  => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'event_date'     => $request->event_date,
-            'event_address'  => $request->event_address,
-            'total_price'    => $total,
-            'status'         => 'pending',
-            'notes'          => $request->notes,
+            'user_id'            => \Illuminate\Support\Facades\Auth::id(),
+            'customer_name'      => $request->customer_name,
+            'customer_phone'     => $request->customer_phone,
+            'event_date'         => $request->event_date,
+            'event_address'      => $request->event_address,
+            'total_price'        => $total,
+            'status'             => 'pending',
+            'notes'              => $request->notes,
+            'payment_method'     => $request->payment_method,
+            'payment_status'     => 'unpaid',
+            'payment_expires_at' => $expiresAt,
         ]);
 
         // Simpan order items
