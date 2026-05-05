@@ -319,6 +319,9 @@
                                     <div class="payment-countdown" data-expires-at="{{ $order->payment_expires_at->toIso8601String() }}" data-order-id="{{ $order->id }}" style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: #991b1b; letter-spacing: 2px;">
                                         --:--
                                     </div>
+                                    @if($order->payment_url)
+                                    <a href="{{ $order->payment_url }}" target="_blank" style="display: inline-block; margin-top: 0.5rem; background: #dc2626; color: white; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 700;">💳 Bayar Sekarang</a>
+                                    @endif
                                 </div>
                                 @endif
 
@@ -439,7 +442,6 @@
                                 <select name="payment_method" required style="width: 100%; padding: 0.7rem 0.875rem; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.875rem; font-family: 'Inter', sans-serif; color: #0f172a; outline: none; background: #f8fafc;">
                                     <option value="" disabled selected>Pilih metode pembayaran</option>
                                     <option value="duitku">Duitku (Virtual Account / e-Wallet)</option>
-                                    <option value="cash">Bayar di Tempat (Cash)</option>
                                 </select>
                                 @error('payment_method')<p class="field-error">{{ $message }}</p>@enderror
                             </div>

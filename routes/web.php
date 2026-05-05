@@ -22,6 +22,9 @@ Route::post('/logout', [\App\Http\Controllers\Auth\UserAuthController::class, 'l
 // API: polling status pesanan (real-time)
 Route::post('/api/order-status', [PageController::class, 'apiOrderStatus'])->name('api.order.status');
 
+// Duitku Callback
+Route::post('/callback', [CartController::class, 'callback'])->name('duitku.callback');
+
 // ─── Cart Routes ─────────────────────────────────────────────────
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'get'])->name('get');
