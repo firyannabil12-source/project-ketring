@@ -166,58 +166,81 @@ class CartController extends Controller
         session(['tracked_orders' => $trackedOrders]);
 
         // PROSES DUITKU JIKA DIPILIH
-        if ($request->payment_method === 'duitku') {
-            $merchantCode = config('services.duitku.merchant_code');
-            $apiKey = config('services.duitku.api_key');
-            $env = config('services.duitku.env', 'sandbox');
-            $callbackUrl = config('services.duitku.callback_url');
-            $returnUrl = config('services.duitku.return_url');
+if ($request->payment_method === 'duitku') {
+    $merchantCode = config('services.duitku.merchant_code');
+    $apiKey = config('services.duitku.api_key');
+    $env = config('services.duitku.env', 'sandbox');
+    $callbackUrl = config('services.duitku.callback_url');
+    $returnUrl = config('services.duitku.return_url');
 
-            $merchantOrderId = (string) $order->id;
-            $paymentAmount = (int) $total;
-            $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
+    $timestamp = round(microtime(true) * 1000);
+    $signature = hash('sha256', $merchantCode . $timestamp . $apiKey);
 
-            $params = [
-                'merchantCode' => $merchantCode,
-                'paymentAmount' => $paymentAmount,
-                'merchantOrderId' => $merchantOrderId,
-                'productDetails' => 'Pesanan Katering #ORD-' . $order->id,
-                'email' => 'customer@ketringmamaiksan.com', // Dummy email if not available
-                'phoneNumber' => $order->customer_phone,
-                'customerVaName' => $order->customer_name,
-                'callbackUrl' => $callbackUrl,
-                'returnUrl' => $returnUrl,
-                'signature' => $signature,
-                'expiryPeriod' => 10
-            ];
+    $merchantOrderId = (string) $order->id;
+    $paymentAmount = (int) $total;
 
-            $url = $env === 'sandbox' 
-                ? 'https://api-sandbox.duitku.com/api/merchant/createinvoice' 
-                : 'https://api-prod.duitku.com/api/merchant/createinvoice';
+    $params = [
+        'paymentAmount' => $paymentAmount,
+        'merchantOrderId' => $merchantOrderId,
+        'productDetails' => 'Pesanan Katering #ORD-' . $order->id,
+        'email' => 'customer@ketringmamaiksan.com',
+        'phoneNumber' => $order->customer_phone,
+        'customerVaName' => $order->customer_name,
+        'callbackUrl' => $callbackUrl,
+        'returnUrl' => $returnUrl,
+        'expiryPeriod' => 10
+    ];
 
-            try {
-                $response = \Illuminate\Support\Facades\Http::post($url, $params);
-                $result = $response->json();
+    $url = $env === 'sandbox'
+        ? 'https://api-sandbox.duitku.com/api/merchant/createInvoice'
+        : 'https://api-prod.duitku.com/api/merchant/createInvoice';
 
-                if (isset($result['statusCode']) && $result['statusCode'] == '00') {
-                    $order->update([
-                        'payment_url' => $result['paymentUrl'],
-                        'reference'   => $result['reference']
-                    ]);
-                    
-                    // Redirect to Duitku payment page
-                    return redirect($result['paymentUrl']);
-                } else {
-                    \Illuminate\Support\Facades\Log::error('Duitku Error Response Body: ' . $response->body());
-                    \Illuminate\Support\Facades\Log::error('Duitku Error Parsed JSON: ' . json_encode($result));
-                    return redirect()->route('orders')->with('error', 'Gagal membuat link pembayaran Duitku. Silakan coba lagi atau hubungi admin.');
-                }
-            } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Duitku Exception: ' . $e->getMessage());
-                return redirect()->route('orders')->with('error', 'Terjadi kesalahan sistem saat menghubungi payment gateway.');
-            }
+    try {
+        \Illuminate\Support\Facades\Log::info('DUITKU DEBUG', [
+            'merchant_code' => $merchantCode,
+            'env' => $env,
+            'url' => $url,
+            'callback_url' => $callbackUrl,
+            'return_url' => $returnUrl,
+            'payment_amount' => $paymentAmount,
+            'merchant_order_id' => $merchantOrderId,
+            'api_key_exists' => !empty($apiKey),
+            'signature' => $signature,
+        ]);
+
+        $response = \Illuminate\Support\Facades\Http::withHeaders([
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'x-duitku-signature' => $signature,
+            'x-duitku-timestamp' => $timestamp,
+            'x-duitku-merchantcode' => $merchantCode,
+        ])->post($url, $params);
+
+        $result = $response->json();
+
+        if ($response->successful() && isset($result['paymentUrl'])) {
+            $order->update([
+                'payment_url' => $result['paymentUrl'],
+                'reference' => $result['reference'] ?? null
+            ]);
+
+            return redirect($result['paymentUrl']);
         }
 
+        \Illuminate\Support\Facades\Log::error('Duitku HTTP Status: ' . $response->status());
+        \Illuminate\Support\Facades\Log::error('Duitku Error Response Body: ' . $response->body());
+        \Illuminate\Support\Facades\Log::error('Duitku Error Parsed JSON: ' . json_encode($result));
+
+        return redirect()->route('orders')
+            ->with('error', 'Gagal membuat link pembayaran Duitku. Silakan coba lagi atau hubungi admin.');
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Duitku Exception: ' . $e->getMessage());
+
+        return redirect()->route('orders')
+            ->with('error', 'Terjadi kesalahan sistem saat menghubungi payment gateway.');
+    }
+}
         return redirect()->route('orders')
             ->with('success', "Pesanan #ORD-{$order->id} berhasil dibuat! Kami akan segera memproses pesanan Anda.")
             ->with('new_order_id', $order->id);
