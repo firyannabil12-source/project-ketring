@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+<!-- @extends('layouts.admin') -->
 
 @section('page-title', 'Pesanan Masuk')
 @section('breadcrumb', 'Manajemen Pesanan')
@@ -84,6 +84,7 @@
     .status-select:focus { border-color: #E8572A; }
     .status-select.pending { color: #a16207; background: #fef9c3; border-color: #fde68a; }
     .status-select.diproses { color: #1d4ed8; background: #dbeafe; border-color: #bfdbfe; }
+    .status-select.dikirim { color: #5b21b6; background: #ede9fe; border-color: #ddd6fe; }
     .status-select.selesai { color: #15803d; background: #dcfce7; border-color: #bbf7d0; }
     .status-select.dibatalkan { color: #dc2626; background: #fee2e2; border-color: #fecaca; }
 
@@ -130,6 +131,10 @@
             <div class="lbl">Diproses</div>
         </div>
         <div class="stat-mini-card">
+            <div class="val" style="color: #7c3aed;">{{ $orders->where('status','dikirim')->count() }}</div>
+            <div class="lbl">Dikirim</div>
+        </div>
+        <div class="stat-mini-card">
             <div class="val" style="color: #16a34a;">{{ $orders->where('status','selesai')->count() }}</div>
             <div class="lbl">Selesai</div>
         </div>
@@ -144,6 +149,7 @@
             <button class="filter-btn active" onclick="filterStatus(this,'all')">Semua</button>
             <button class="filter-btn" onclick="filterStatus(this,'pending')">Pending</button>
             <button class="filter-btn" onclick="filterStatus(this,'diproses')">Diproses</button>
+            <button class="filter-btn" onclick="filterStatus(this,'dikirim')">Dikirim</button>
             <button class="filter-btn" onclick="filterStatus(this,'selesai')">Selesai</button>
         </div>
     </div>
@@ -181,6 +187,9 @@
                 <td>
                     <div class="event-date">📅 {{ $order->event_date ? $order->event_date->format('d M Y') : '-' }}</div>
                     <div class="event-addr" title="{{ $order->event_address }}">📍 {{ $order->event_address ?? '-' }}</div>
+                    @if($order->latitude && $order->longitude)
+                        <a href="https://www.google.com/maps?q={{ $order->latitude }},{{ $order->longitude }}" target="_blank" style="font-size: 0.75rem; color: #E8572A; text-decoration: none; font-weight: 600; display: inline-block; margin-top: 4px;">🗺️ Lihat Lokasi</a>
+                    @endif
                 </td>
                 <td class="total-price">Rp {{ number_format($order->total_price, 0, ',', '.') }}</td>
                 <td>
@@ -205,7 +214,7 @@
                     <select class="status-select {{ $order->status }}"
                             data-order-id="{{ $order->id }}"
                             onchange="updateStatus(this)">
-                        @foreach(['pending','diproses','selesai','dibatalkan'] as $st)
+                        @foreach(['pending','diproses','dikirim','selesai','dibatalkan'] as $st)
                         <option value="{{ $st }}" {{ $order->status === $st ? 'selected' : '' }}>
                             {{ ucfirst($st) }}
                         </option>

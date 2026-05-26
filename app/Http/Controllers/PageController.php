@@ -42,6 +42,7 @@ class PageController extends Controller
                     }
                 })
                 ->latest()
+                ->take(5)
                 ->get();
 
             // Otomatis klaim pesanan guest ke akun yang sedang login
@@ -55,6 +56,7 @@ class PageController extends Controller
                 $orders = Order::with('items.menu')
                     ->whereIn('id', $trackedOrders)
                     ->latest()
+                    ->take(5)
                     ->get();
             }
         }

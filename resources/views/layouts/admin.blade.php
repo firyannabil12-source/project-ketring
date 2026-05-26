@@ -208,6 +208,9 @@
                 <span class="icon">🛒</span> Pesanan Masuk
                 <span class="badge-pending" id="pendingBadge">0</span>
             </a>
+            <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                <span class="icon">👥</span> Daftar Pengguna
+            </a>
 
             <div class="nav-section-label">Lainnya</div>
             <a href="{{ route('home') }}" class="sidebar-link" target="_blank">

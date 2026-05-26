@@ -110,6 +110,8 @@ class CartController extends Controller
             'customer_phone' => 'required|string|max:20',
             'event_date'     => 'required|date|after_or_equal:today',
             'event_address'  => 'required|string|max:500',
+            'latitude'       => 'nullable|string',
+            'longitude'      => 'nullable|string',
             'payment_method' => 'required|string|in:duitku',
             'notes'          => 'nullable|string|max:1000',
         ], [
@@ -147,6 +149,8 @@ class CartController extends Controller
             'payment_method'     => $request->payment_method,
             'payment_status'     => 'unpaid',
             'payment_expires_at' => $expiresAt,
+            'latitude'           => $request->latitude,
+            'longitude'          => $request->longitude,
         ]);
 
         // Simpan order items

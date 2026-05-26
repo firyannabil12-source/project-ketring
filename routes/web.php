@@ -11,6 +11,7 @@ Route::get('/', [PageController::class, 'index'])->name('home');
 Route::get('/menu', [PageController::class, 'menu'])->name('menu');
 Route::get('/kontak', [PageController::class, 'contact'])->name('contact');
 Route::get('/pesanan', [PageController::class, 'orders'])->name('orders');
+Route::get('/invoice/{id}', [App\Http\Controllers\InvoiceController::class, 'download']);
 
 // User Auth
 Route::get('/login', [\App\Http\Controllers\Auth\UserAuthController::class, 'showLogin'])->name('login');
@@ -58,4 +59,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/pesanan/{order}/konfirmasi-pembayaran', [AdminController::class, 'konfirmasiPembayaran'])->name('pesanan.konfirmasi_pembayaran');
         Route::get('/api/pending-count', [AdminController::class, 'apiPendingCount'])->name('api.pending');
     });
+});
+
+use App\Http\Controllers\Admin\UserController;
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
 });

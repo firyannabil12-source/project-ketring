@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'last_seen',
     ];
 
     /**
@@ -46,5 +47,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isOnline()
+    {
+        return $this->last_seen && \Carbon\Carbon::parse($this->last_seen)->gt(now()->subMinutes(5));
     }
 }

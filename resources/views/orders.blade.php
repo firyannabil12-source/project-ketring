@@ -190,23 +190,30 @@
     .order-grand-total { font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; color: #0f172a; }
     .order-grand-total small { font-size: 0.72rem; color: #94a3b8; font-family: 'Inter', sans-serif; font-weight: 500; }
 
-    .progress-bar-wrapper {
+    .order-progress {
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        gap: 8px;
         margin-top: 0.75rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
     }
-    .progress-step {
-        flex: 1;
-        text-align: center;
-        font-size: 0.65rem;
+    .order-progress span {
+        padding: 5px 12px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 0.7rem;
         font-weight: 700;
-        color: #cbd5e1;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border: 1px solid #e2e8f0;
     }
-    .progress-step.done { color: #16a34a; }
-    .progress-step.active { color: #E8572A; }
-    .progress-line { flex: 1; height: 3px; background: #e2e8f0; border-radius: 3px; }
-    .progress-line.done { background: #22c55e; }
+    .order-progress span.active {
+        background: #22c55e;
+        color: white;
+        border-color: #22c55e;
+        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+    }
 
     .no-orders-state {
         text-align: center;
@@ -230,6 +237,52 @@
         transition: all 0.2s;
     }
     .no-orders-state a:hover { background: #d14a20; }
+
+    .btn-invoice {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #f1f5f9;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .btn-invoice:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .map-wrapper { position: relative; }
+    .locate-btn {
+        position: absolute; top: 80px; left: 10px; z-index: 1000;
+        background: white; border: 2px solid rgba(0,0,0,0.2); border-radius: 4px;
+        width: 34px; height: 34px; font-size: 16px; font-weight: bold;
+        cursor: pointer; display: flex; justify-content: center; align-items: center;
+        color: #333;
+    }
+    .locate-btn:hover { background: #f4f4f4; }
+
+    .leaflet-routing-container {
+        display: none !important;
+    }
+
+    .distance-label div {
+        background: #16a34a;
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+        text-align: center;
+    }
 
     @media (max-width: 900px) {
         .orders-layout { grid-template-columns: 1fr; }
@@ -267,7 +320,13 @@
                                 <span class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</span>
                                 <span class="status-indicator status-{{ $order->status }}" id="status-badge-{{ $order->id }}">
                                     @php
-                                        $statusLabel = ['pending' => 'Menunggu Konfirmasi', 'diproses' => 'Sedang Diproses', 'selesai' => 'Selesai', 'dibatalkan' => 'Dibatalkan'];
+                                        $statusLabel = [
+                                        'pending' => 'Menunggu Konfirmasi',
+                                        'diproses' => 'Sedang Diproses',
+                                        'dikirim' => 'Sedang Dikirim',
+                                        'selesai' => 'Selesai',
+                                        'dibatalkan' => 'Dibatalkan'
+                                        ];
                                     @endphp
                                     {{ $statusLabel[$order->status] ?? ucfirst($order->status) }}
                                 </span>
@@ -327,18 +386,11 @@
 
                                 <!-- Progress -->
                                 @if($order->status !== 'dibatalkan')
-                                <div class="progress-bar-wrapper">
-                                    <div class="progress-step {{ in_array($order->status, ['pending','diproses','selesai']) ? 'done' : '' }}">
-                                        ✅ Masuk
-                                    </div>
-                                    <div class="progress-line {{ in_array($order->status, ['diproses','selesai']) ? 'done' : '' }}"></div>
-                                    <div class="progress-step {{ $order->status === 'diproses' ? 'active' : ($order->status === 'selesai' ? 'done' : '') }}">
-                                        🍳 Diproses
-                                    </div>
-                                    <div class="progress-line {{ $order->status === 'selesai' ? 'done' : '' }}"></div>
-                                    <div class="progress-step {{ $order->status === 'selesai' ? 'done' : '' }}">
-                                        🎉 Selesai
-                                    </div>
+                                <div class="order-progress">
+                                    <span class="{{ $order->status == 'pending' ? 'active' : '' }}">Pending</span>
+                                    <span class="{{ $order->status == 'diproses' ? 'active' : '' }}">Diproses</span>
+                                    <span class="{{ $order->status == 'dikirim' ? 'active' : '' }}">Dikirim</span>
+                                    <span class="{{ $order->status == 'selesai' ? 'active' : '' }}">Selesai</span>
                                 </div>
                                 @endif
 
@@ -359,13 +411,19 @@
                                     <small>Total Bayar</small><br>
                                     Rp {{ number_format($order->total_price, 0, ',', '.') }}
                                 </span>
-                                @if($order->status === 'pending')
-                                <span style="font-size: 0.78rem; color: #f59e0b; font-weight: 600;">⏳ Menunggu konfirmasi admin...</span>
-                                @elseif($order->status === 'diproses')
-                                <span style="font-size: 0.78rem; color: #3b82f6; font-weight: 600;">🍳 Sedang dimasak untuk Anda!</span>
-                                @elseif($order->status === 'selesai')
-                                <span style="font-size: 0.78rem; color: #16a34a; font-weight: 600;">🎉 Pesanan selesai. Selamat menikmati!</span>
-                                @endif
+                                <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                    @if($order->status === 'pending')
+                                    <span style="font-size: 0.78rem; color: #f59e0b; font-weight: 600;">⏳ Menunggu konfirmasi admin...</span>
+                                    @elseif($order->status === 'diproses')
+                                    <span style="font-size: 0.78rem; color: #3b82f6; font-weight: 600;">🍳 Sedang dimasak untuk Anda!</span>
+                                    @elseif($order->status === 'selesai')
+                                    <span style="font-size: 0.78rem; color: #16a34a; font-weight: 600;">🎉 Pesanan selesai. Selamat menikmati!</span>
+                                    @endif
+
+                                    <a href="/invoice/{{ $order->id }}" target="_blank" class="btn-invoice">
+                                        📄 Download Invoice
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         @endforeach
@@ -433,8 +491,18 @@
 
                             <div class="form-group">
                                 <label>Alamat Lokasi Acara *</label>
-                                <textarea name="event_address" placeholder="Alamat lengkap tempat acara" required>{{ old('event_address') }}</textarea>
+                                <textarea id="address" name="event_address" placeholder="Alamat lengkap tempat acara" required>{{ old('event_address') }}</textarea>
                                 @error('event_address')<p class="field-error">{{ $message }}</p>@enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pilih Lokasi pada Peta</label>
+                                <div class="map-wrapper">
+                                    <button type="button" id="locateBtn" class="locate-btn" title="Cari Lokasi Saya">⦿</button>
+                                    <div id="map" style="height: 400px; border-radius:10px; border: 1.5px solid #e2e8f0; margin-bottom: 0.5rem;"></div>
+                                </div>
+                                <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
+                                <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
                             </div>
 
                             <div class="form-group">
@@ -573,5 +641,136 @@ function updateCountdowns() {
 }
 setInterval(updateCountdowns, 1000);
 updateCountdowns(); // initial call
+
+// ─── Leaflet Map ──────────────────────────────────────────────
+const map = L.map('map').setView([-6.2088, 106.8456], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let marker;
+let routingControl;
+let distanceMarker;
+const cateringLat = -6.410915594179738;
+const cateringLng = 106.75735160036807;
+const catering = L.latLng(cateringLat, cateringLng);
+
+// Marker catering
+L.marker(catering).addTo(map).bindPopup('Risha Catering');
+
+async function setMarker(lat, lng) {
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+    const user = L.latLng(lat, lng);
+
+    if (marker) {
+        map.removeLayer(marker);
+    }
+    marker = L.marker(user).addTo(map).bindPopup('Lokasi User').openPopup();
+
+    if (routingControl) {
+        map.removeControl(routingControl);
+    }
+
+    if (distanceMarker) {
+        map.removeLayer(distanceMarker);
+    }
+
+    routingControl = L.Routing.control({
+        waypoints: [
+            catering,
+            user
+        ],
+        routeWhileDragging: false,
+        addWaypoints: false,
+        draggableWaypoints: false,
+        show: false,
+        collapsible: false,
+        fitSelectedRoutes: true,
+        createMarker: function() { return null; }
+    }).addTo(map);
+
+    function hitungJarak(lat1, lon1, lat2, lon2) {
+        const R = 6371; // KM
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) *
+            Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c;
+    }
+
+    const jarak = hitungJarak(cateringLat, cateringLng, lat, lng);
+    const tengahLat = (cateringLat + lat) / 2;
+    const tengahLng = (cateringLng + lng) / 2;
+
+    distanceMarker = L.marker([tengahLat, tengahLng], {
+        icon: L.divIcon({
+            className: 'distance-label',
+            html: `<div>${jarak.toFixed(2)} km</div>`,
+            iconSize: [100, 30]
+        })
+    }).addTo(map);
+
+    map.fitBounds([catering, user]);
+
+    // Ambil alamat otomatis
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
+        const data = await response.json();
+        if (data && data.display_name) {
+            document.getElementById('address').value = data.display_name;
+        } else {
+            document.getElementById('address').value = 'Alamat tidak ditemukan';
+        }
+    } catch (error) {
+        console.error('Error fetching address:', error);
+    }
+}
+
+// If we already have old inputs, show marker
+const oldLat = document.getElementById('latitude').value;
+const oldLng = document.getElementById('longitude').value;
+if (oldLat && oldLng) {
+    setMarker(oldLat, oldLng);
+} else {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                setMarker(position.coords.latitude, position.coords.longitude);
+            },
+            function() {
+                // Ignore or show subtle warning
+            }
+        );
+    }
+}
+
+document.getElementById('locateBtn').addEventListener('click', function () {
+    if (!navigator.geolocation) {
+        alert('Browser tidak mendukung lokasi.');
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(function (position) {
+        setMarker(position.coords.latitude, position.coords.longitude);
+    }, function () {
+        alert('Izinkan akses lokasi terlebih dahulu.');
+    });
+});
+
+map.on('click', function(e) {
+    setMarker(e.latlng.lat, e.latlng.lng);
+});
 </script>
 @endsection
