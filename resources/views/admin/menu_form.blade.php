@@ -127,6 +127,12 @@
                     @error('price')<p class="field-error">{{ $message }}</p>@enderror
                 </div>
 
+                <div class="form-group">
+                    <label>Stok Tersedia *</label>
+                    <input type="number" name="stock" value="{{ old('stock', $menu->stock ?? 0) }}" placeholder="100" min="0" required>
+                    @error('stock')<p class="field-error">{{ $message }}</p>@enderror
+                </div>
+
                 <!-- Kategori -->
                 <div class="form-group">
                     <label>Kategori *</label>

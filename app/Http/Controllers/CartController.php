@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -33,9 +34,17 @@ class CartController extends Controller
 
         $cart = session('cart', []);
         $key  = 'menu_' . $menu->id;
+        $currentQty = $cart[$key]['quantity'] ?? 0;
+
+        if (($currentQty + $qty) > $menu->stock) {
+            return response()->json([
+                'success' => false,
+                'message' => "Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.",
+            ], 422);
+        }
 
         if (isset($cart[$key])) {
-            $newQty = $cart[$key]['quantity'] + $qty;
+            $newQty = $currentQty + $qty;
             $cart[$key]['quantity'] = $newQty;
         } else {
             $cart[$key] = [
@@ -90,6 +99,14 @@ class CartController extends Controller
             unset($cart[$key]);
         } elseif (isset($cart[$key])) {
             $menu = Menu::find($request->menu_id);
+            if (!$menu) {
+                unset($cart[$key]);
+            } elseif ($request->quantity > $menu->stock) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.",
+                ], 422);
+            }
             $cart[$key]['quantity'] = (int) $request->quantity;
         }
 
@@ -128,6 +145,21 @@ class CartController extends Controller
             return back()->with('error', 'Keranjang Anda kosong. Tambahkan menu terlebih dahulu.');
         }
 
+        $menuIds = collect($cart)->pluck('menu_id')->all();
+        $menus = Menu::whereIn('id', $menuIds)->get()->keyBy('id');
+
+        foreach ($cart as $item) {
+            $menu = $menus->get($item['menu_id']);
+
+            if (!$menu) {
+                return back()->with('error', 'Ada menu di keranjang yang sudah tidak tersedia. Silakan perbarui keranjang Anda.');
+            }
+
+            if ($item['quantity'] > $menu->stock) {
+                return back()->with('error', "Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.");
+            }
+        }
+
         $total = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
 
         // Set waktu expired (misal 10 menit dari sekarang jika pakai Duitku)
@@ -136,31 +168,45 @@ class CartController extends Controller
             $expiresAt = now()->addMinutes(10);
         }
 
-        // Simpan order
-        $order = Order::create([
-            'user_id'            => \Illuminate\Support\Facades\Auth::id(),
-            'customer_name'      => $request->customer_name,
-            'customer_phone'     => $request->customer_phone,
-            'event_date'         => $request->event_date,
-            'event_address'      => $request->event_address,
-            'total_price'        => $total,
-            'status'             => 'pending',
-            'notes'              => $request->notes,
-            'payment_method'     => $request->payment_method,
-            'payment_status'     => 'unpaid',
-            'payment_expires_at' => $expiresAt,
-            'latitude'           => $request->latitude,
-            'longitude'          => $request->longitude,
-        ]);
+        try {
+            $order = DB::transaction(function () use ($request, $cart, $total, $expiresAt) {
+                $order = Order::create([
+                    'user_id'            => \Illuminate\Support\Facades\Auth::id(),
+                    'customer_name'      => $request->customer_name,
+                    'customer_phone'     => $request->customer_phone,
+                    'event_date'         => $request->event_date,
+                    'event_address'      => $request->event_address,
+                    'total_price'        => $total,
+                    'status'             => 'pending',
+                    'notes'              => $request->notes,
+                    'payment_method'     => $request->payment_method,
+                    'payment_status'     => 'unpaid',
+                    'payment_expires_at' => $expiresAt,
+                    'latitude'           => $request->latitude,
+                    'longitude'          => $request->longitude,
+                ]);
 
-        // Simpan order items
-        foreach ($cart as $item) {
-            OrderItem::create([
-                'order_id' => $order->id,
-                'menu_id'  => $item['menu_id'],
-                'quantity' => $item['quantity'],
-                'price'    => $item['price'],
-            ]);
+                foreach ($cart as $item) {
+                    $menu = Menu::lockForUpdate()->findOrFail($item['menu_id']);
+
+                    if ($item['quantity'] > $menu->stock) {
+                        throw new \RuntimeException("Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.");
+                    }
+
+                    OrderItem::create([
+                        'order_id' => $order->id,
+                        'menu_id'  => $menu->id,
+                        'quantity' => $item['quantity'],
+                        'price'    => $item['price'],
+                    ]);
+
+                    $menu->decrement('stock', $item['quantity']);
+                }
+
+                return $order;
+            });
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
         }
 
         // Kosongkan cart & simpan order_id di session untuk tracking
@@ -187,7 +233,7 @@ if ($request->payment_method === 'duitku') {
         'paymentAmount' => $paymentAmount,
         'merchantOrderId' => $merchantOrderId,
         'productDetails' => 'Pesanan Katering #ORD-' . $order->id,
-        'email' => 'customer@ketringmamaiksan.com',
+        'email' => 'customer@rishacatering.com',
         'phoneNumber' => $order->customer_phone,
         'customerVaName' => $order->customer_name,
         'callbackUrl' => $callbackUrl,
@@ -250,48 +296,4 @@ if ($request->payment_method === 'duitku') {
             ->with('new_order_id', $order->id);
     }
 
-    // POST: callback dari Duitku
-    public function callback(Request $request)
-    {
-        $merchantCode = config('services.duitku.merchant_code');
-        $apiKey = config('services.duitku.api_key');
-
-        $merchantOrderId = $request->input('merchantOrderId');
-        $amount = $request->input('amount');
-        $resultCode = $request->input('resultCode');
-        $signature = $request->input('signature');
-        $reference = $request->input('reference');
-
-        if (!$merchantOrderId || !$amount || !$signature) {
-            return response()->json(['success' => false, 'message' => 'Invalid parameters'], 400);
-        }
-
-        // Verify signature: md5(merchantCode + amount + merchantOrderId + apiKey)
-        $expectedSignature = md5($merchantCode . $amount . $merchantOrderId . $apiKey);
-
-        if ($signature !== $expectedSignature) {
-            \Illuminate\Support\Facades\Log::warning('Duitku Callback: Invalid Signature', $request->all());
-            return response()->json(['success' => false, 'message' => 'Invalid signature'], 400);
-        }
-
-        $order = Order::find($merchantOrderId);
-        if (!$order) {
-            return response()->json(['success' => false, 'message' => 'Order not found'], 404);
-        }
-
-        // resultCode: 00 = Success, 01 = Failed, 02 = Expired
-        if ($resultCode == '00') {
-            $order->update([
-                'payment_status' => 'paid',
-                // Optional: update status to diproses automatically
-                // 'status' => 'diproses' 
-            ]);
-        } else if ($resultCode == '01' || $resultCode == '02') {
-            $order->update([
-                'payment_status' => 'expired'
-            ]);
-        }
-
-        return response()->json(['success' => true]);
-    }
 }

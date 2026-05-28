@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login - Ketring Mama Iksan')
+@section('title', 'Login - Risha Catering')
 
 @section('content')
 <div class="container" style="max-width: 500px; margin: 4rem auto;">

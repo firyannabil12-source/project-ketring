@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin — Ketring Mama Iksan</title>
+    <title>Login Admin — Risha Catering</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -202,7 +202,7 @@
 
     <!-- Left Branding Panel -->
     <div class="left-panel">
-        <div class="brand-logo"><span>Ketring</span> Mama Iksan</div>
+        <div class="brand-logo"><span>Risha</span> Catering</div>
         <p class="brand-tagline">Panel Admin — Kelola menu, stok, dan pesanan katering Anda dengan mudah.</p>
         <div class="brand-badge">
             <strong>🔒 Area Terbatas</strong>
@@ -214,7 +214,7 @@
     <div class="right-panel">
         <div class="login-header">
             <h1>Selamat Datang 👋</h1>
-            <p>Masuk ke dashboard admin Ketring Mama Iksan</p>
+            <p>Masuk ke dashboard admin Risha Catering</p>
         </div>
 
         @if(session('error'))
@@ -235,7 +235,7 @@
                     id="email"
                     name="email"
                     value="{{ old('email') }}"
-                    placeholder="admin@ketring.com"
+                    placeholder="admin@rishacatering.com"
                     class="{{ $errors->has('email') ? 'is-invalid' : '' }}"
                     autocomplete="email"
                     autofocus

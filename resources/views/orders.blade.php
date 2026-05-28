@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pesanan Saya — Ketring Mama Iksan')
+@section('title', 'Pesanan Saya — Risha Catering')
 
 @section('styles')
 <style>
@@ -162,6 +162,8 @@
     .status-pending::before { background: #f59e0b; animation: livePulse 1.5s infinite; }
     .status-diproses { background: #dbeafe; color: #1d4ed8; }
     .status-diproses::before { background: #3b82f6; animation: livePulse 2s infinite; }
+    .status-dikirim { background: #ede9fe; color: #5b21b6; }
+    .status-dikirim::before { background: #7c3aed; animation: livePulse 2s infinite; }
     .status-selesai { background: #dcfce7; color: #15803d; }
     .status-selesai::before { background: #22c55e; }
     .status-dibatalkan { background: #fee2e2; color: #dc2626; }
@@ -416,6 +418,8 @@
                                     <span style="font-size: 0.78rem; color: #f59e0b; font-weight: 600;">⏳ Menunggu konfirmasi admin...</span>
                                     @elseif($order->status === 'diproses')
                                     <span style="font-size: 0.78rem; color: #3b82f6; font-weight: 600;">🍳 Sedang dimasak untuk Anda!</span>
+                                    @elseif($order->status === 'dikirim')
+                                    <span style="font-size: 0.78rem; color: #7c3aed; font-weight: 600;">Pesanan sedang dikirim ke lokasi acara.</span>
                                     @elseif($order->status === 'selesai')
                                     <span style="font-size: 0.78rem; color: #16a34a; font-weight: 600;">🎉 Pesanan selesai. Selamat menikmati!</span>
                                     @endif
@@ -599,6 +603,7 @@ function pollOrderStatus() {
             const statusMap = {
                 'pending':     { label: 'Menunggu Konfirmasi', cls: 'status-pending' },
                 'diproses':    { label: 'Sedang Diproses',     cls: 'status-diproses' },
+                'dikirim':     { label: 'Sedang Dikirim',      cls: 'status-dikirim' },
                 'selesai':     { label: 'Selesai',              cls: 'status-selesai' },
                 'dibatalkan':  { label: 'Dibatalkan',           cls: 'status-dibatalkan' },
             };

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Admin Dashboard — Ketring Mama Iksan</title>
+    <title>Admin Dashboard — Risha Catering</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -190,7 +190,7 @@
     <!-- Sidebar -->
     <div class="admin-sidebar">
         <div class="sidebar-brand">
-            <h2><span>Ketring</span> Mama Iksan</h2>
+            <h2><span>Risha</span> Catering</h2>
             <small>Panel Administrasi</small>
         </div>
 

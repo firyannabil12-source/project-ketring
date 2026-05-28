@@ -1,4 +1,4 @@
-# Activity Diagram Web Ketring Mama Iksan
+# Activity Diagram Web Risha Catering
 
 Diagram ini dibuat lebih sederhana agar mudah dimasukkan ke draw.io / PlantUML dan tetap menggambarkan alur utama sistem.
 

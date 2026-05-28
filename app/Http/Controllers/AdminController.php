@@ -49,11 +49,12 @@ class AdminController extends Controller
             'name'        => 'required|string|max:255',
             'category'    => 'required|string|max:100',
             'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image'       => 'nullable|image|mimes:png,jpg,jpeg|max:2048'
         ]);
 
-        $data = $request->only(['name', 'category', 'price', 'description']);
+        $data = $request->only(['name', 'category', 'price', 'stock', 'description']);
 
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
@@ -76,11 +77,12 @@ class AdminController extends Controller
             'name'        => 'required|string|max:255',
             'category'    => 'required|string|max:100',
             'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image'       => 'nullable|image|mimes:png,jpg,jpeg|max:2048'
         ]);
 
-        $data = $request->only(['name', 'category', 'price', 'description']);
+        $data = $request->only(['name', 'category', 'price', 'stock', 'description']);
 
         if ($request->hasFile('image')) {
             // Delete old image if needed (optional)
@@ -118,7 +120,7 @@ class AdminController extends Controller
     public function updateStatusPesanan(Request $request, Order $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,diproses,selesai,dibatalkan',
+            'status' => 'required|in:pending,diproses,dikirim,selesai,dibatalkan',
         ]);
 
         $order->update(['status' => $request->status]);

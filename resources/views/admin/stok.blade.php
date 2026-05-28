@@ -221,6 +221,7 @@
                 <th>Menu</th>
                 <th>Kategori</th>
                 <th>Harga</th>
+                <th>Stok</th>
                 <th>Aksi</th>
             </tr>
         </thead>
@@ -241,6 +242,12 @@
                 <td><span class="category-pill">{{ $menu->category }}</span></td>
                 <td style="font-weight: 700; color: #E8572A;">Rp {{ number_format($menu->price, 0, ',', '.') }}</td>
                 <td>
+                    @php
+                        $stockClass = $menu->stock <= 0 ? 'critical' : ($menu->stock <= 10 ? 'low' : 'ok');
+                    @endphp
+                    <span class="stock-display {{ $stockClass }}">{{ $menu->stock }}</span>
+                </td>
+                <td>
                     <div class="action-btns">
                         <a href="{{ route('admin.menu.edit', $menu) }}" class="btn-edit">✏️ Edit</a>
                         <form method="POST" action="{{ route('admin.menu.destroy', $menu) }}" onsubmit="return confirm('Hapus menu \"{{ $menu->name }}\"? Tindakan ini tidak bisa dibatalkan.')">
@@ -251,7 +258,7 @@
                 </td>
             </tr>
             @empty
-            <tr><td colspan="4" style="text-align: center; padding: 3rem; color: #94a3b8;">Belum ada menu. <a href="{{ route('admin.menu.create') }}" style="color: #E8572A;">Tambah sekarang →</a></td></tr>
+            <tr><td colspan="5" style="text-align: center; padding: 3rem; color: #94a3b8;">Belum ada menu. <a href="{{ route('admin.menu.create') }}" style="color: #E8572A;">Tambah sekarang →</a></td></tr>
             @endforelse
         </tbody>
     </table>

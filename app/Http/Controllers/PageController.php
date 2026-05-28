@@ -72,7 +72,24 @@ class PageController extends Controller
         if (empty($ids)) {
             return response()->json([]);
         }
-        $orders = Order::whereIn('id', $ids)->get(['id', 'status', 'updated_at']);
+
+        $trackedOrders = session('tracked_orders', []);
+        $orders = Order::whereIn('id', $ids)
+            ->where(function ($q) use ($trackedOrders) {
+                if (\Illuminate\Support\Facades\Auth::check()) {
+                    $q->where('user_id', \Illuminate\Support\Facades\Auth::id());
+
+                    if (!empty($trackedOrders)) {
+                        $q->orWhereIn('id', $trackedOrders);
+                    }
+                } elseif (!empty($trackedOrders)) {
+                    $q->whereIn('id', $trackedOrders);
+                } else {
+                    $q->whereRaw('1 = 0');
+                }
+            })
+            ->get(['id', 'status', 'updated_at']);
+
         return response()->json($orders);
     }
 }

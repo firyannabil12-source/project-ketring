@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Menu Kami — Ketring Mama Iksan')
+@section('title', 'Menu Kami — Risha Catering')
 
 @section('styles')
 <style>
@@ -191,8 +191,9 @@
                         <button
                             class="btn-add-cart"
                             id="cart-btn-{{ $menu->id }}"
+                            @disabled($menu->stock <= 0)
                             onclick="handleAddToCart(this, {{ $menu->id }}, '{{ addslashes($menu->name) }}')">
-                            🛒 Tambah
+                            {{ $menu->stock > 0 ? 'Tambah' : 'Stok Habis' }}
                         </button>
                     </div>
                 </div>

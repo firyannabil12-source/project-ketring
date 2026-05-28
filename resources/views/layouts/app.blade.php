@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Ketring Mama Iksan - Katering Lezat & Higienis')</title>
-    <meta name="description" content="Ketring Mama Iksan menyediakan layanan katering terbaik dengan cita rasa rumahan yang lezat, sehat, dan higienis untuk berbagai acara Anda.">
+    <title>@yield('title', 'Risha Catering - Katering Lezat & Higienis')</title>
+    <meta name="description" content="Risha Catering menyediakan layanan katering terbaik dengan cita rasa rumahan yang lezat, sehat, dan higienis untuk berbagai acara Anda.">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -313,7 +313,7 @@
     <header class="navbar">
         <div class="container">
             <a href="{{ route('home') }}" class="logo">
-                <span class="logo-accent">Ketring</span> Mama Iksan
+                <span class="logo-accent">Risha</span> Catering
             </a>
             <nav class="nav-links">
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
@@ -356,7 +356,7 @@
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-info">
-                    <h3>Ketring Mama Iksan</h3>
+                    <h3>Risha Catering</h3>
                     <p>Lezat, Higienis, dan Penuh Cinta. Teman setia untuk setiap momen istimewa Anda.</p>
                 </div>
                 <div class="footer-links">
@@ -370,11 +370,11 @@
                     <h4>Hubungi Kami</h4>
                     <p>📍 Jl. Mawar No. 123, Jakarta</p>
                     <p>📞 +62 812-3456-789</p>
-                    <p>📧 info@ketringmamaiksan.com</p>
+                    <p>📧 info@rishacatering.com</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; {{ date('Y') }} Ketring Mama Iksan. All rights reserved.</p>
+                <p>&copy; {{ date('Y') }} Risha Catering. All rights reserved.</p>
             </div>
         </div>
     </footer>

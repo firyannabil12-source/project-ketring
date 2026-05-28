@@ -15,7 +15,7 @@ return new class extends Migration
             $table->date('event_date')->nullable();
             $table->string('event_address')->nullable();
             $table->decimal('total_price', 14, 2)->default(0);
-            $table->enum('status', ['pending', 'diproses', 'selesai', 'dibatalkan'])->default('pending');
+            $table->enum('status', ['pending', 'diproses', 'dikirim', 'selesai', 'dibatalkan'])->default('pending');
             $table->text('notes')->nullable();
             $table->timestamps();
         });

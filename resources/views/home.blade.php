@@ -7,7 +7,7 @@
         <div class="hero-grid">
             <div class="hero-content">
                 <h1>Cita Rasa <span class="logo-accent">Rumahan</span>, Kualitas Restoran.</h1>
-                <p>Ketring Mama Iksan menghadirkan hidangan lezat dan higienis untuk menyempurnakan setiap momen berharga Anda. Dari Nasi Kotak hingga Tumpeng Mewah.</p>
+                <p>Risha Catering menghadirkan hidangan lezat dan higienis untuk menyempurnakan setiap momen berharga Anda. Dari Nasi Kotak hingga Tumpeng Mewah.</p>
                 <div class="hero-btns">
                     <a href="{{ route('menu') }}" class="btn btn-primary">Lihat Menu Kami</a>
                     <a href="{{ route('contact') }}" class="btn" style="color: var(--secondary); margin-left: 1rem; border: 1px solid var(--secondary);">Hubungi Kami</a>

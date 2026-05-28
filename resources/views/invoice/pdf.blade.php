@@ -174,7 +174,7 @@
     </div>
 
     <div class="footer">
-        Terima kasih telah melakukan pemesanan di Ketring Mama Iksan.
+        Terima kasih telah melakukan pemesanan di Risha Catering.
         <br>
         Simpan invoice ini sebagai bukti pemesanan.
     </div>

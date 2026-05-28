@@ -39,7 +39,7 @@ class DuitkuCallbackController extends Controller
             ]);
         } else {
             $order->update([
-                'payment_status' => 'failed',
+                'payment_status' => 'expired',
             ]);
         }
 

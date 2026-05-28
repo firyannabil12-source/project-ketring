@@ -1,6 +1,6 @@
-# Ketring Mama Iksan 🍱
+# Risha Catering 🍱
 
-Selamat datang di repositori **Ketring Mama Iksan**, sebuah aplikasi web e-commerce *full-stack* yang dirancang khusus untuk manajemen pemesanan katering. Aplikasi ini dibangun menggunakan framework **Laravel 12** (PHP 8.2+) dan menawarkan pengalaman berbelanja makanan yang mulus dengan integrasi pembayaran otomatis.
+Selamat datang di repositori **Risha Catering**, sebuah aplikasi web e-commerce *full-stack* yang dirancang khusus untuk manajemen pemesanan katering. Aplikasi ini dibangun menggunakan framework **Laravel 12** (PHP 8.2+) dan menawarkan pengalaman berbelanja makanan yang mulus dengan integrasi pembayaran otomatis.
 
 ---
 
@@ -9,7 +9,7 @@ Selamat datang di repositori **Ketring Mama Iksan**, sebuah aplikasi web e-comme
 Sebagai *full-stack developer*, berikut adalah panduan cepat mengenai struktur file dan direktori penting dalam proyek ini:
 
 ```text
-ketringmamaiksan/
+risha-catering/
 ├── app/
 │   ├── Http/
 │   │   └── Controllers/       # Logika bisnis aplikasi (Admin, Cart, Auth, Invoice, Duitku)
@@ -77,4 +77,4 @@ Jika Anda ingin menjalankan aplikasi ini di lokal:
 8. Buka browser: `http://localhost:8000`.
 
 ---
-*Dikembangkan dengan ❤️ untuk kemudahan operasional Ketring Mama Iksan.*
+*Dikembangkan dengan ❤️ untuk kemudahan operasional Risha Catering.*

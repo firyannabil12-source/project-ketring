@@ -19,7 +19,7 @@
                     </div>
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
                         <div style="width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">📧</div>
-                        <p><strong>Email:</strong> halo@ketringmamaiksan.com</p>
+                        <p><strong>Email:</strong> halo@rishacatering.com</p>
                     </div>
                 </div>
 
