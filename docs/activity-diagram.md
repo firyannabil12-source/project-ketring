@@ -1,4 +1,4 @@
-# Activity Diagram Web Risha Catering
+﻿# Activity Diagram Web Risha Catering
 
 Diagram ini dibuat lebih sederhana agar mudah dimasukkan ke draw.io / PlantUML dan tetap menggambarkan alur utama sistem.
 
@@ -20,7 +20,7 @@ start
 
 if (Sudah login?) then (Ya)
 else (Tidak)
-  :Login / daftar akun;
+ :Login / daftar akun;
 endif
 
 :Isi data pemesanan;
@@ -31,13 +31,13 @@ endif
 :Validasi data pesanan;
 
 if (Data valid?) then (Ya)
-  :Simpan pesanan;
-  :Simpan detail menu;
-  :Buat link pembayaran;
+ :Simpan pesanan;
+ :Simpan detail menu;
+ :Buat link pembayaran;
 else (Tidak)
-  |Pelanggan|
-  :Perbaiki data pesanan;
-  stop
+ |Pelanggan|
+ :Perbaiki data pesanan;
+ stop
 endif
 
 |Duitku|
@@ -51,10 +51,10 @@ endif
 
 |Sistem Web|
 if (Pembayaran berhasil?) then (Ya)
-  :Ubah status pembayaran menjadi lunas;
-  :Ubah status pesanan menjadi diproses;
+ :Ubah status pembayaran menjadi lunas;
+ :Ubah status pesanan menjadi diproses;
 else (Tidak)
-  :Ubah status pembayaran menjadi gagal;
+ :Ubah status pembayaran menjadi gagal;
 endif
 
 |Pelanggan|
@@ -89,15 +89,15 @@ left to right direction
 skinparam backgroundColor white
 skinparam shadowing false
 skinparam rectangle {
-  BackgroundColor #9caf96
-  BorderColor #9caf96
-  FontColor #1f2d1f
-  FontStyle bold
+ BackgroundColor #9caf96
+ BorderColor #9caf96
+ FontColor #1f2d1f
+ FontStyle bold
 }
 skinparam usecase {
-  BackgroundColor #28c3d4
-  BorderColor #28c3d4
-  FontColor black
+ BackgroundColor #28c3d4
+ BorderColor #28c3d4
+ FontColor black
 }
 skinparam ArrowColor #9b9b9b
 skinparam ArrowThickness 1.5
@@ -193,22 +193,22 @@ start
 :Validasi akun admin;
 
 if (Login valid?) then (Ya)
-  |Admin|
-  :Buka halaman stok/menu;
-  :Pilih tambah, edit, atau hapus menu;
-  :Mengisi data menu;
+ |Admin|
+ :Buka halaman stok/menu;
+ :Pilih tambah, edit, atau hapus menu;
+ :Mengisi data menu;
 
-  |Sistem Web|
-  :Validasi data menu;
-  :Simpan perubahan menu;
+ |Sistem Web|
+ :Validasi data menu;
+ :Simpan perubahan menu;
 
-  |Admin|
-  :Melihat daftar menu terbaru;
-  stop
+ |Admin|
+ :Melihat daftar menu terbaru;
+ stop
 else (Tidak)
-  |Admin|
-  :Tampilkan pesan login gagal;
-  stop
+ |Admin|
+ :Tampilkan pesan login gagal;
+ stop
 endif
 
 @enduml
@@ -236,21 +236,21 @@ skinparam shadowing false
 skinparam packageStyle rectangle
 skinparam actorStyle awesome
 skinparam rectangle {
-  BorderColor #00a884
-  BackgroundColor white
-  RoundCorner 18
+ BorderColor #00a884
+ BackgroundColor white
+ RoundCorner 18
 }
 skinparam usecase {
-  BackgroundColor #00a884
-  BorderColor #00a884
-  FontColor white
-  FontStyle bold
+ BackgroundColor #00a884
+ BorderColor #00a884
+ FontColor white
+ FontStyle bold
 }
 skinparam actor {
-  BackgroundColor #00a884
-  BorderColor black
-  FontColor black
-  FontStyle bold
+ BackgroundColor #00a884
+ BorderColor black
+ FontColor black
+ FontStyle bold
 }
 skinparam ArrowColor #00a884
 skinparam ArrowThickness 1.3
@@ -259,38 +259,38 @@ actor "User" as User
 actor "Admin" as Admin
 
 rectangle "Sistem Pemesanan Catering" {
-  usecase "Register / Login" as U1
-  usecase "Melihat Menu" as U2
-  usecase "Membuat Pesanan" as U3
-  usecase "Pilih Lokasi Acara" as U4
-  usecase "Melakukan\nPembayaran" as U5
-  usecase "Cek Status Pesanan" as U6
+ usecase "Register / Login" as U1
+ usecase "Melihat Menu" as U2
+ usecase "Membuat Pesanan" as U3
+ usecase "Pilih Lokasi Acara" as U4
+ usecase "Melakukan\nPembayaran" as U5
+ usecase "Cek Status Pesanan" as U6
 
-  usecase "Login Admin" as A1
-  usecase "Kelola Menu\nCatering" as A2
-  usecase "Melihat Pesanan" as A3
-  usecase "Konfirmasi\nPembayaran" as A4
-  usecase "Ubah Status\nPesanan" as A5
-  usecase "Kelola Pengguna" as A6
+ usecase "Login Admin" as A1
+ usecase "Kelola Menu\nCatering" as A2
+ usecase "Melihat Pesanan" as A3
+ usecase "Konfirmasi\nPembayaran" as A4
+ usecase "Ubah Status\nPesanan" as A5
+ usecase "Kelola Pengguna" as A6
 
-  U1 -[hidden]down- U2
-  U2 -[hidden]down- U3
-  U3 -[hidden]down- U4
-  U4 -[hidden]down- U5
-  U5 -[hidden]down- U6
+ U1 -[hidden]down- U2
+ U2 -[hidden]down- U3
+ U3 -[hidden]down- U4
+ U4 -[hidden]down- U5
+ U5 -[hidden]down- U6
 
-  A1 -[hidden]down- A2
-  A2 -[hidden]down- A3
-  A3 -[hidden]down- A4
-  A4 -[hidden]down- A5
-  A5 -[hidden]down- A6
+ A1 -[hidden]down- A2
+ A2 -[hidden]down- A3
+ A3 -[hidden]down- A4
+ A4 -[hidden]down- A5
+ A5 -[hidden]down- A6
 
-  U1 -[hidden]right- A1
-  U2 -[hidden]right- A2
-  U3 -[hidden]right- A3
-  U4 -[hidden]right- A4
-  U5 -[hidden]right- A5
-  U6 -[hidden]right- A6
+ U1 -[hidden]right- A1
+ U2 -[hidden]right- A2
+ U3 -[hidden]right- A3
+ U4 -[hidden]right- A4
+ U5 -[hidden]right- A5
+ U6 -[hidden]right- A6
 }
 
 User --> U1

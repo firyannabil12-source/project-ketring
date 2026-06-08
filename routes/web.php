@@ -1,32 +1,36 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PageController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\Auth\UserAuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\DuitkuCallbackController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\PageController;
+use Illuminate\Support\Facades\Route;
 
-// ─── User / Public Routes ────────────────────────────────────────
+// User / Public Routes
 Route::get('/', [PageController::class, 'index'])->name('home');
 Route::get('/menu', [PageController::class, 'menu'])->name('menu');
 Route::get('/kontak', [PageController::class, 'contact'])->name('contact');
 Route::get('/pesanan', [PageController::class, 'orders'])->name('orders');
-Route::get('/invoice/{id}', [App\Http\Controllers\InvoiceController::class, 'download']);
+Route::get('/invoice/{id}', [InvoiceController::class, 'download']);
 
 // User Auth
-Route::get('/login', [\App\Http\Controllers\Auth\UserAuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [\App\Http\Controllers\Auth\UserAuthController::class, 'login'])->name('login.post');
-Route::get('/daftar', [\App\Http\Controllers\Auth\UserAuthController::class, 'showRegister'])->name('register');
-Route::post('/daftar', [\App\Http\Controllers\Auth\UserAuthController::class, 'register'])->name('register.post');
-Route::post('/logout', [\App\Http\Controllers\Auth\UserAuthController::class, 'logout'])->name('logout');
+Route::get('/login', [UserAuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [UserAuthController::class, 'login'])->name('login.post');
+Route::get('/daftar', [UserAuthController::class, 'showRegister'])->name('register');
+Route::post('/daftar', [UserAuthController::class, 'register'])->name('register.post');
+Route::match(['get', 'post'], '/logout', [UserAuthController::class, 'logout'])->name('logout');
 
 // API: polling status pesanan (real-time)
 Route::post('/api/order-status', [PageController::class, 'apiOrderStatus'])->name('api.order.status');
 
 // Duitku Callback
-Route::post('/callback', [App\Http\Controllers\DuitkuCallbackController::class, 'handle']);
+Route::post('/callback', [DuitkuCallbackController::class, 'handle']);
 
-// ─── Cart Routes ─────────────────────────────────────────────────
+// Cart Routes
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'get'])->name('get');
     Route::post('/add', [CartController::class, 'add'])->name('add');
@@ -35,11 +39,11 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::middleware('auth')->post('/checkout', [CartController::class, 'checkout'])->name('checkout');
 });
 
-// ─── Admin Auth ──────────────────────────────────────────────────
+// Admin Auth
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
-    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
+    Route::match(['get', 'post'], '/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     // Protected admin routes
     Route::middleware('admin')->group(function () {
@@ -60,8 +64,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/api/pending-count', [AdminController::class, 'apiPendingCount'])->name('api.pending');
     });
 });
-
-use App\Http\Controllers\Admin\UserController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');

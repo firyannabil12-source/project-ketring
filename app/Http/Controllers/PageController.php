@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Menu;
 use App\Models\Order;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
@@ -13,12 +13,14 @@ class PageController extends Controller
     {
         $menus = Menu::take(3)->get();
         $featuredMenus = $menus;
+
         return view('home', compact('featuredMenus'));
     }
 
     public function menu()
     {
         $menus = Menu::orderBy('category')->orderBy('name')->get();
+
         return view('menu', compact('menus'));
     }
 
@@ -32,12 +34,12 @@ class PageController extends Controller
         $orders = collect([]);
         $trackedOrders = session('tracked_orders', []);
 
-        if (\Illuminate\Support\Facades\Auth::check()) {
+        if (Auth::check()) {
             // Tampilkan pesanan milik user yang login DAN pesanan yang dibuat saat guest (tracked via session)
             $orders = Order::with('items.menu')
                 ->where(function ($q) use ($trackedOrders) {
-                    $q->where('user_id', \Illuminate\Support\Facades\Auth::id());
-                    if (!empty($trackedOrders)) {
+                    $q->where('user_id', Auth::id());
+                    if (! empty($trackedOrders)) {
                         $q->orWhereIn('id', $trackedOrders);
                     }
                 })
@@ -46,13 +48,13 @@ class PageController extends Controller
                 ->get();
 
             // Otomatis klaim pesanan guest ke akun yang sedang login
-            if (!empty($trackedOrders)) {
+            if (! empty($trackedOrders)) {
                 Order::whereIn('id', $trackedOrders)
                     ->whereNull('user_id')
-                    ->update(['user_id' => \Illuminate\Support\Facades\Auth::id()]);
+                    ->update(['user_id' => Auth::id()]);
             }
         } else {
-            if (!empty($trackedOrders)) {
+            if (! empty($trackedOrders)) {
                 $orders = Order::with('items.menu')
                     ->whereIn('id', $trackedOrders)
                     ->latest()
@@ -62,6 +64,7 @@ class PageController extends Controller
         }
 
         $cart = session('cart', []);
+
         return view('orders', compact('orders', 'cart'));
     }
 
@@ -76,13 +79,13 @@ class PageController extends Controller
         $trackedOrders = session('tracked_orders', []);
         $orders = Order::whereIn('id', $ids)
             ->where(function ($q) use ($trackedOrders) {
-                if (\Illuminate\Support\Facades\Auth::check()) {
-                    $q->where('user_id', \Illuminate\Support\Facades\Auth::id());
+                if (Auth::check()) {
+                    $q->where('user_id', Auth::id());
 
-                    if (!empty($trackedOrders)) {
+                    if (! empty($trackedOrders)) {
                         $q->orWhereIn('id', $trackedOrders);
                     }
-                } elseif (!empty($trackedOrders)) {
+                } elseif (! empty($trackedOrders)) {
                     $q->whereIn('id', $trackedOrders);
                 } else {
                     $q->whereRaw('1 = 0');

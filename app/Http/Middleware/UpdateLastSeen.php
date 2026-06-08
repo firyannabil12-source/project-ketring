@@ -11,7 +11,7 @@ class UpdateLastSeen
     {
         if (auth()->check()) {
             auth()->user()->update([
-                'last_seen' => now()
+                'last_seen' => now(),
             ]);
         }
 

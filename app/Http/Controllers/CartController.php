@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -14,10 +17,11 @@ class CartController extends Controller
     public function get()
     {
         $cart = session('cart', []);
+
         return response()->json([
-            'cart'  => array_values($cart),
+            'cart' => array_values($cart),
             'count' => array_sum(array_column($cart, 'quantity')),
-            'total' => array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart)),
+            'total' => array_sum(array_map(fn ($i) => $i['price'] * $i['quantity'], $cart)),
         ]);
     }
 
@@ -25,15 +29,15 @@ class CartController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'menu_id'  => 'required|exists:menus,id',
+            'menu_id' => 'required|exists:menus,id',
             'quantity' => 'integer|min:1',
         ]);
 
         $menu = Menu::findOrFail($request->menu_id);
-        $qty  = (int) $request->input('quantity', 1);
+        $qty = (int) $request->input('quantity', 1);
 
         $cart = session('cart', []);
-        $key  = 'menu_' . $menu->id;
+        $key = 'menu_'.$menu->id;
         $currentQty = $cart[$key]['quantity'] ?? 0;
 
         if (($currentQty + $qty) > $menu->stock) {
@@ -48,11 +52,11 @@ class CartController extends Controller
             $cart[$key]['quantity'] = $newQty;
         } else {
             $cart[$key] = [
-                'menu_id'  => $menu->id,
-                'name'     => $menu->name,
+                'menu_id' => $menu->id,
+                'name' => $menu->name,
                 'category' => $menu->category,
-                'price'    => (float) $menu->price,
-                'image'    => $menu->image,
+                'price' => (float) $menu->price,
+                'image' => $menu->image,
                 'quantity' => $qty,
             ];
         }
@@ -62,8 +66,8 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => "\"{$menu->name}\" ditambahkan ke keranjang!",
-            'count'   => array_sum(array_column($cart, 'quantity')),
-            'total'   => array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart)),
+            'count' => array_sum(array_column($cart, 'quantity')),
+            'total' => array_sum(array_map(fn ($i) => $i['price'] * $i['quantity'], $cart)),
         ]);
     }
 
@@ -72,15 +76,15 @@ class CartController extends Controller
     {
         $request->validate(['menu_id' => 'required']);
         $cart = session('cart', []);
-        $key  = 'menu_' . $request->menu_id;
+        $key = 'menu_'.$request->menu_id;
 
         unset($cart[$key]);
         session(['cart' => $cart]);
 
         return response()->json([
             'success' => true,
-            'count'   => array_sum(array_column($cart, 'quantity')),
-            'total'   => array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart)),
+            'count' => array_sum(array_column($cart, 'quantity')),
+            'total' => array_sum(array_map(fn ($i) => $i['price'] * $i['quantity'], $cart)),
         ]);
     }
 
@@ -88,18 +92,18 @@ class CartController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'menu_id'  => 'required',
+            'menu_id' => 'required',
             'quantity' => 'required|integer|min:0',
         ]);
 
         $cart = session('cart', []);
-        $key  = 'menu_' . $request->menu_id;
+        $key = 'menu_'.$request->menu_id;
 
         if ($request->quantity == 0) {
             unset($cart[$key]);
         } elseif (isset($cart[$key])) {
             $menu = Menu::find($request->menu_id);
-            if (!$menu) {
+            if (! $menu) {
                 unset($cart[$key]);
             } elseif ($request->quantity > $menu->stock) {
                 return response()->json([
@@ -114,29 +118,29 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'count'   => array_sum(array_column($cart, 'quantity')),
-            'total'   => array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart)),
+            'count' => array_sum(array_column($cart, 'quantity')),
+            'total' => array_sum(array_map(fn ($i) => $i['price'] * $i['quantity'], $cart)),
         ]);
     }
 
-    // POST: checkout — simpan pesanan ke DB
+    // POST: checkout simpan pesanan ke DB
     public function checkout(Request $request)
     {
         $request->validate([
-            'customer_name'  => 'required|string|max:255',
+            'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
-            'event_date'     => 'required|date|after_or_equal:today',
-            'event_address'  => 'required|string|max:500',
-            'latitude'       => 'nullable|string',
-            'longitude'      => 'nullable|string',
+            'event_date' => 'required|date|after_or_equal:today',
+            'event_address' => 'required|string|max:500',
+            'latitude' => 'nullable|string',
+            'longitude' => 'nullable|string',
             'payment_method' => 'required|string|in:duitku',
-            'notes'          => 'nullable|string|max:1000',
+            'notes' => 'nullable|string|max:1000',
         ], [
-            'customer_name.required'  => 'Nama pemesan wajib diisi.',
+            'customer_name.required' => 'Nama pemesan wajib diisi.',
             'customer_phone.required' => 'Nomor HP wajib diisi.',
-            'event_date.required'     => 'Tanggal acara wajib diisi.',
+            'event_date.required' => 'Tanggal acara wajib diisi.',
             'event_date.after_or_equal' => 'Tanggal acara tidak boleh di masa lalu.',
-            'event_address.required'  => 'Alamat acara wajib diisi.',
+            'event_address.required' => 'Alamat acara wajib diisi.',
             'payment_method.required' => 'Metode pembayaran wajib dipilih.',
         ]);
 
@@ -151,7 +155,7 @@ class CartController extends Controller
         foreach ($cart as $item) {
             $menu = $menus->get($item['menu_id']);
 
-            if (!$menu) {
+            if (! $menu) {
                 return back()->with('error', 'Ada menu di keranjang yang sudah tidak tersedia. Silakan perbarui keranjang Anda.');
             }
 
@@ -160,7 +164,7 @@ class CartController extends Controller
             }
         }
 
-        $total = array_sum(array_map(fn($i) => $i['price'] * $i['quantity'], $cart));
+        $total = array_sum(array_map(fn ($i) => $i['price'] * $i['quantity'], $cart));
 
         // Set waktu expired (misal 10 menit dari sekarang jika pakai Duitku)
         $expiresAt = null;
@@ -171,19 +175,19 @@ class CartController extends Controller
         try {
             $order = DB::transaction(function () use ($request, $cart, $total, $expiresAt) {
                 $order = Order::create([
-                    'user_id'            => \Illuminate\Support\Facades\Auth::id(),
-                    'customer_name'      => $request->customer_name,
-                    'customer_phone'     => $request->customer_phone,
-                    'event_date'         => $request->event_date,
-                    'event_address'      => $request->event_address,
-                    'total_price'        => $total,
-                    'status'             => 'pending',
-                    'notes'              => $request->notes,
-                    'payment_method'     => $request->payment_method,
-                    'payment_status'     => 'unpaid',
+                    'user_id' => Auth::id(),
+                    'customer_name' => $request->customer_name,
+                    'customer_phone' => $request->customer_phone,
+                    'event_date' => $request->event_date,
+                    'event_address' => $request->event_address,
+                    'total_price' => $total,
+                    'status' => 'pending',
+                    'notes' => $request->notes,
+                    'payment_method' => $request->payment_method,
+                    'payment_status' => 'unpaid',
                     'payment_expires_at' => $expiresAt,
-                    'latitude'           => $request->latitude,
-                    'longitude'          => $request->longitude,
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
                 ]);
 
                 foreach ($cart as $item) {
@@ -195,9 +199,9 @@ class CartController extends Controller
 
                     OrderItem::create([
                         'order_id' => $order->id,
-                        'menu_id'  => $menu->id,
+                        'menu_id' => $menu->id,
                         'quantity' => $item['quantity'],
-                        'price'    => $item['price'],
+                        'price' => $item['price'],
                     ]);
 
                     $menu->decrement('stock', $item['quantity']);
@@ -216,84 +220,84 @@ class CartController extends Controller
         session(['tracked_orders' => $trackedOrders]);
 
         // PROSES DUITKU JIKA DIPILIH
-if ($request->payment_method === 'duitku') {
-    $merchantCode = config('services.duitku.merchant_code');
-    $apiKey = config('services.duitku.api_key');
-    $env = config('services.duitku.env', 'sandbox');
-    $callbackUrl = config('services.duitku.callback_url');
-    $returnUrl = config('services.duitku.return_url');
+        if ($request->payment_method === 'duitku') {
+            $merchantCode = config('services.duitku.merchant_code');
+            $apiKey = config('services.duitku.api_key');
+            $env = config('services.duitku.env', 'sandbox');
+            $callbackUrl = config('services.duitku.callback_url');
+            $returnUrl = config('services.duitku.return_url');
 
-    $timestamp = round(microtime(true) * 1000);
-    $signature = hash('sha256', $merchantCode . $timestamp . $apiKey);
+            $timestamp = round(microtime(true) * 1000);
+            $signature = hash('sha256', $merchantCode.$timestamp.$apiKey);
 
-    $merchantOrderId = (string) $order->id;
-    $paymentAmount = (int) $total;
+            $merchantOrderId = (string) $order->id;
+            $paymentAmount = (int) $total;
 
-    $params = [
-        'paymentAmount' => $paymentAmount,
-        'merchantOrderId' => $merchantOrderId,
-        'productDetails' => 'Pesanan Katering #ORD-' . $order->id,
-        'email' => 'customer@rishacatering.com',
-        'phoneNumber' => $order->customer_phone,
-        'customerVaName' => $order->customer_name,
-        'callbackUrl' => $callbackUrl,
-        'returnUrl' => $returnUrl,
-        'expiryPeriod' => 10
-    ];
+            $params = [
+                'paymentAmount' => $paymentAmount,
+                'merchantOrderId' => $merchantOrderId,
+                'productDetails' => 'Pesanan Katering #ORD-'.$order->id,
+                'email' => 'customer@rishacatering.com',
+                'phoneNumber' => $order->customer_phone,
+                'customerVaName' => $order->customer_name,
+                'callbackUrl' => $callbackUrl,
+                'returnUrl' => $returnUrl,
+                'expiryPeriod' => 10,
+            ];
 
-    $url = $env === 'sandbox'
-        ? 'https://api-sandbox.duitku.com/api/merchant/createInvoice'
-        : 'https://api-prod.duitku.com/api/merchant/createInvoice';
+            $url = $env === 'sandbox'
+            ? 'https://api-sandbox.duitku.com/api/merchant/createInvoice'
+            : 'https://api-prod.duitku.com/api/merchant/createInvoice';
 
-    try {
-        \Illuminate\Support\Facades\Log::info('DUITKU DEBUG', [
-            'merchant_code' => $merchantCode,
-            'env' => $env,
-            'url' => $url,
-            'callback_url' => $callbackUrl,
-            'return_url' => $returnUrl,
-            'payment_amount' => $paymentAmount,
-            'merchant_order_id' => $merchantOrderId,
-            'api_key_exists' => !empty($apiKey),
-            'signature' => $signature,
-        ]);
+            try {
+                Log::info('DUITKU DEBUG', [
+                    'merchant_code' => $merchantCode,
+                    'env' => $env,
+                    'url' => $url,
+                    'callback_url' => $callbackUrl,
+                    'return_url' => $returnUrl,
+                    'payment_amount' => $paymentAmount,
+                    'merchant_order_id' => $merchantOrderId,
+                    'api_key_exists' => ! empty($apiKey),
+                    'signature' => $signature,
+                ]);
 
-        $response = \Illuminate\Support\Facades\Http::withHeaders([
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-            'x-duitku-signature' => $signature,
-            'x-duitku-timestamp' => $timestamp,
-            'x-duitku-merchantcode' => $merchantCode,
-        ])->post($url, $params);
+                $response = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    'Content-Type' => 'application/json',
+                    'x-duitku-signature' => $signature,
+                    'x-duitku-timestamp' => $timestamp,
+                    'x-duitku-merchantcode' => $merchantCode,
+                ])->post($url, $params);
 
-        $result = $response->json();
+                $result = $response->json();
 
-        if ($response->successful() && isset($result['paymentUrl'])) {
-            $order->update([
-                'payment_url' => $result['paymentUrl'],
-                'reference' => $result['reference'] ?? null
-            ]);
+                if ($response->successful() && isset($result['paymentUrl'])) {
+                    $order->update([
+                        'payment_url' => $result['paymentUrl'],
+                        'reference' => $result['reference'] ?? null,
+                    ]);
 
-            return redirect($result['paymentUrl']);
+                    return redirect($result['paymentUrl']);
+                }
+
+                Log::error('Duitku HTTP Status: '.$response->status());
+                Log::error('Duitku Error Response Body: '.$response->body());
+                Log::error('Duitku Error Parsed JSON: '.json_encode($result));
+
+                return redirect()->route('orders')
+                    ->with('error', 'Gagal membuat link pembayaran Duitku. Silakan coba lagi atau hubungi admin.');
+
+            } catch (\Exception $e) {
+                Log::error('Duitku Exception: '.$e->getMessage());
+
+                return redirect()->route('orders')
+                    ->with('error', 'Terjadi kesalahan sistem saat menghubungi payment gateway.');
+            }
         }
 
-        \Illuminate\Support\Facades\Log::error('Duitku HTTP Status: ' . $response->status());
-        \Illuminate\Support\Facades\Log::error('Duitku Error Response Body: ' . $response->body());
-        \Illuminate\Support\Facades\Log::error('Duitku Error Parsed JSON: ' . json_encode($result));
-
-        return redirect()->route('orders')
-            ->with('error', 'Gagal membuat link pembayaran Duitku. Silakan coba lagi atau hubungi admin.');
-
-    } catch (\Exception $e) {
-        \Illuminate\Support\Facades\Log::error('Duitku Exception: ' . $e->getMessage());
-
-        return redirect()->route('orders')
-            ->with('error', 'Terjadi kesalahan sistem saat menghubungi payment gateway.');
-    }
-}
         return redirect()->route('orders')
             ->with('success', "Pesanan #ORD-{$order->id} berhasil dibuat! Kami akan segera memproses pesanan Anda.")
             ->with('new_order_id', $order->id);
     }
-
 }

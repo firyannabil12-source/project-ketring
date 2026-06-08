@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Carbon\Carbon;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -51,6 +52,6 @@ class User extends Authenticatable
 
     public function isOnline()
     {
-        return $this->last_seen && \Carbon\Carbon::parse($this->last_seen)->gt(now()->subMinutes(5));
+        return $this->last_seen && Carbon::parse($this->last_seen)->gt(now()->subMinutes(5));
     }
 }

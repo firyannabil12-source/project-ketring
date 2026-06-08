@@ -1,5 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Invoice #ORD-{{ $order->id }}</title>
@@ -103,82 +104,84 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="invoice-box">
-    <div class="header">
-        <h1>KETRING MAMA IKSAN</h1>
-        <p>Invoice Pemesanan Catering</p>
-    </div>
+    <div class="invoice-box">
+        <div class="header">
+            <h1>KETRING MAMA IKSAN</h1>
+            <p>Invoice Pemesanan Catering</p>
+        </div>
 
-    <table class="info">
-        <tr>
-            <td><strong>No Invoice</strong></td>
-            <td>: #ORD-{{ $order->id }}</td>
-            <td><strong>Status Pembayaran</strong></td>
-            <td>: 
-                @if($order->payment_status === 'paid')
-                    <span class="badge badge-paid">LUNAS</span>
-                @elseif($order->payment_status === 'unpaid')
-                    <span class="badge badge-unpaid">BELUM BAYAR</span>
-                @elseif($order->payment_status === 'expired')
-                    <span class="badge badge-expired">KEDALUWARSA</span>
-                @else
-                    <span class="badge badge-default">{{ strtoupper($order->payment_status) }}</span>
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td><strong>Customer</strong></td>
-            <td>: {{ $order->customer_name }}</td>
-            <td><strong>Tanggal Pesan</strong></td>
-            <td>: {{ $order->created_at->format('d M Y, H:i') }}</td>
-        </tr>
-        <tr>
-            <td><strong>No HP</strong></td>
-            <td>: {{ $order->customer_phone }}</td>
-            <td><strong>Tanggal Acara</strong></td>
-            <td>: {{ $order->event_date ? $order->event_date->format('d M Y') : '-' }}</td>
-        </tr>
-        <tr>
-            <td><strong>Alamat Acara</strong></td>
-            <td colspan="3">: {{ $order->event_address }}</td>
-        </tr>
-    </table>
-
-    <table class="items">
-        <thead>
+        <table class="info">
             <tr>
-                <th>No</th>
-                <th>Menu</th>
-                <th>Qty</th>
-                <th>Harga</th>
-                <th>Subtotal</th>
+                <td><strong>No Invoice</strong></td>
+                <td>: #ORD-{{ $order->id }}</td>
+                <td><strong>Status Pembayaran</strong></td>
+                <td>:
+                    @if ($order->payment_status === 'paid')
+                        <span class="badge badge-paid">LUNAS</span>
+                    @elseif($order->payment_status === 'unpaid')
+                        <span class="badge badge-unpaid">BELUM BAYAR</span>
+                    @elseif($order->payment_status === 'expired')
+                        <span class="badge badge-expired">KEDALUWARSA</span>
+                    @else
+                        <span class="badge badge-default">{{ strtoupper($order->payment_status) }}</span>
+                    @endif
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($order->items as $index => $item)
             <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $item->menu->name ?? '-' }}</td>
-                <td align="center">{{ $item->quantity }}</td>
-                <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
-                <td>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</td>
+                <td><strong>Customer</strong></td>
+                <td>: {{ $order->customer_name }}</td>
+                <td><strong>Tanggal Pesan</strong></td>
+                <td>: {{ $order->created_at->format('d M Y, H:i') }}</td>
             </tr>
-            @endforeach
-        </tbody>
-    </table>
+            <tr>
+                <td><strong>No HP</strong></td>
+                <td>: {{ $order->customer_phone }}</td>
+                <td><strong>Tanggal Acara</strong></td>
+                <td>: {{ $order->event_date ? $order->event_date->format('d M Y') : '-' }}</td>
+            </tr>
+            <tr>
+                <td><strong>Alamat Acara</strong></td>
+                <td colspan="3">: {{ $order->event_address }}</td>
+            </tr>
+        </table>
 
-    <div class="total">
-        Total: Rp {{ number_format($order->total_price, 0, ',', '.') }}
-    </div>
+        <table class="items">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Menu</th>
+                    <th>Qty</th>
+                    <th>Harga</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($order->items as $index => $item)
+                    <tr>
+                        <td>{{ $index + 1 }}</td>
+                        <td>{{ $item->menu->name ?? '-' }}</td>
+                        <td align="center">{{ $item->quantity }}</td>
+                        <td>Rp {{ number_format($item->price, 0, ',', '.') }}</td>
+                        <td>Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
 
-    <div class="footer">
-        Terima kasih telah melakukan pemesanan di Risha Catering.
-        <br>
-        Simpan invoice ini sebagai bukti pemesanan.
+        <div class="total">
+            Total: Rp {{ number_format($order->total_price, 0, ',', '.') }}
+        </div>
+
+        <div class="footer">
+            Terima kasih telah melakukan pemesanan di Risha Catering.
+            <br>
+            Simpan invoice ini sebagai bukti pemesanan.
+        </div>
     </div>
-</div>
 
 </body>
+
 </html>

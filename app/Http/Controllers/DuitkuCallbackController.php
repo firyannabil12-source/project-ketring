@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use App\Models\Order;
 
 class DuitkuCallbackController extends Controller
 {
@@ -19,16 +19,17 @@ class DuitkuCallbackController extends Controller
         $amount = $request->amount;
         $signature = $request->signature;
 
-        $validSignature = md5($merchantCode . $amount . $merchantOrderId . $apiKey);
+        $validSignature = md5($merchantCode.$amount.$merchantOrderId.$apiKey);
 
         if ($signature !== $validSignature) {
             Log::error('DUITKU CALLBACK INVALID SIGNATURE', $request->all());
+
             return response('Invalid signature', 400);
         }
 
         $order = Order::find($merchantOrderId);
 
-        if (!$order) {
+        if (! $order) {
             return response('Order not found', 404);
         }
 
@@ -45,4 +46,4 @@ class DuitkuCallbackController extends Controller
 
         return response('OK', 200);
     }
-}   
+}

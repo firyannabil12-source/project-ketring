@@ -15,7 +15,7 @@ class InvoiceController extends Controller
         $user = Auth::user();
 
         $canDownload = in_array($order->id, $trackedOrders)
-            || ($user && ($order->user_id === $user->id || $user->role === 'admin'));
+        || ($user && ($order->user_id === $user->id || $user->role === 'admin'));
 
         abort_unless($canDownload, 403);
 

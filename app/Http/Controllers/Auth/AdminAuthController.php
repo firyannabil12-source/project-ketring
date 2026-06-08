@@ -13,19 +13,20 @@ class AdminAuthController extends Controller
         if (Auth::check() && Auth::user()->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
+
         return view('admin.login');
     }
 
     public function login(Request $request)
     {
         $request->validate([
-            'email'    => 'required|email',
+            'email' => 'required|email',
             'password' => 'required|min:6',
         ], [
-            'email.required'    => 'Email wajib diisi.',
-            'email.email'       => 'Format email tidak valid.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.',
-            'password.min'      => 'Password minimal 6 karakter.',
+            'password.min' => 'Password minimal 6 karakter.',
         ]);
 
         $credentials = $request->only('email', 'password');
@@ -33,11 +34,13 @@ class AdminAuthController extends Controller
         if (Auth::attempt($credentials)) {
             if (Auth::user()->role !== 'admin') {
                 Auth::logout();
+
                 return back()->withErrors(['email' => 'Akun ini tidak memiliki akses admin.']);
             }
             $request->session()->regenerate();
+
             return redirect()->route('admin.dashboard')
-                ->with('success', 'Selamat datang, ' . Auth::user()->name . '!');
+                ->with('success', 'Selamat datang, '.Auth::user()->name.'!');
         }
 
         return back()->withErrors([
@@ -50,6 +53,7 @@ class AdminAuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('admin.login')
             ->with('success', 'Anda telah berhasil logout.');
     }
