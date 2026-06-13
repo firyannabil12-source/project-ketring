@@ -65,6 +65,29 @@
  background:#fee2e2;
  color:#dc2626;
 }
+
+.btn-delete{
+ border:0;
+ background:#fee2e2;
+ color:#dc2626;
+ padding:8px 12px;
+ border-radius:7px;
+ font-size:12px;
+ font-weight:700;
+ cursor:pointer;
+ transition:all .2s ease;
+}
+
+.btn-delete:hover{
+ background:#dc2626;
+ color:#fff;
+}
+
+.btn-delete:disabled{
+ background:#f1f5f9;
+ color:#94a3b8;
+ cursor:not-allowed;
+}
 </style>
 @endsection
 
@@ -82,6 +105,7 @@
  <th>Role</th>
  <th>Status</th>
  <th>Tanggal Daftar</th>
+ <th>Aksi</th>
  </tr>
  </thead>
  <tbody>
@@ -112,10 +136,23 @@
  </td>
 
  <td>{{ $user->created_at->diffForHumans() }}</td>
+
+ <td>
+ @if($user->id === auth()->id())
+ <button type="button" class="btn-delete" disabled>Akun Anda</button>
+ @else
+ <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
+ onsubmit="return confirm('Hapus pengguna {{ $user->name }}? Tindakan ini tidak bisa dibatalkan.')">
+ @csrf
+ @method('DELETE')
+ <button type="submit" class="btn-delete">Hapus</button>
+ </form>
+ @endif
+ </td>
  </tr>
  @empty
  <tr>
- <td colspan="6" class="text-center" style="padding: 2rem;">Belum ada pengguna</td>
+ <td colspan="7" class="text-center" style="padding: 2rem;">Belum ada pengguna</td>
  </tr>
  @endforelse
  </tbody>

@@ -136,14 +136,15 @@
 
                     <div class="contact-list">
                         <a class="contact-item"
-                            href="https://www.google.com/maps/search/?api=1&query=Jl.%20Mawar%20No.%20123%2C%20Jakarta%20Selatan"
+                            href="https://www.google.com/maps/search/?api=1&query=Perumahan%20Mutiara%20Sawangan%20No.10%20Blok%20A3%2C%20Pengasinan%2C%20Sawangan%2C%20Depok%20City%2C%20West%20Java%2016518%2C%20Indonesia"
                             target="_blank" rel="noopener">
                             <span class="contact-icon"><i data-lucide="map-pin"></i></span>
-                            <p><strong>Alamat:</strong> Jl. Mawar No. 123, Jakarta Selatan</p>
+                            <p><strong>Alamat:</strong> Perumahan Mutiara Sawangan No.10 Blok A3, Pengasinan, Sawangan,
+                                Depok City, West Java 16518, Indonesia</p>
                         </a>
-                        <a class="contact-item" href="https://wa.me/628123456789" target="_blank" rel="noopener">
+                        <a class="contact-item" href="https://wa.me/62895404575481" target="_blank" rel="noopener">
                             <span class="contact-icon"><i data-lucide="message-circle"></i></span>
-                            <p><strong>WhatsApp:</strong> +62 812-3456-789</p>
+                            <p><strong>WhatsApp:</strong> 0895404575481</p>
                         </a>
                         <a class="contact-item" href="mailto:halo@rishacatering.com">
                             <span class="contact-icon"><i data-lucide="mail"></i></span>
@@ -162,21 +163,21 @@
                     style="background: white; padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg);">
                     <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.65rem;"><i
                             data-lucide="send"></i>Kirim Pesan</h3>
-                    <form action="#">
+                    <form id="contactForm">
                         <div class="form-field">
                             <label>Nama Lengkap</label>
                             <span class="form-icon"><i data-lucide="user-round"></i></span>
-                            <input type="text" placeholder="Masukkan nama Anda">
+                            <input type="text" id="contactName" placeholder="Masukkan nama Anda" required>
                         </div>
                         <div class="form-field">
                             <label>Nomor WhatsApp</label>
                             <span class="form-icon"><i data-lucide="phone"></i></span>
-                            <input type="tel" placeholder="0812xxxxxx">
+                            <input type="tel" id="contactPhone" placeholder="0812xxxxxx" required>
                         </div>
                         <div class="form-field" style="margin-bottom: 1.5rem;">
                             <label>Pesan</label>
                             <span class="form-icon"><i data-lucide="message-square-text"></i></span>
-                            <textarea rows="4" placeholder="Tuliskan detail pesanan atau pertanyaan Anda"></textarea>
+                            <textarea rows="4" id="contactMessage" placeholder="Tuliskan detail pesanan atau pertanyaan Anda" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;"><i
                                 data-lucide="send-horizontal"></i>Kirim Sekarang</button>
@@ -185,4 +186,20 @@
             </div>
         </div>
     </section>
+@endsection
+
+@section('scripts')
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('contactName').value.trim();
+            const phone = document.getElementById('contactPhone').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+            const text = `Halo Risha Catering, saya ingin bertanya.\n\nNama: ${name}\nNo WhatsApp: ${phone}\nPesan: ${message}`;
+            const url = `https://wa.me/62895404575481?text=${encodeURIComponent(text)}`;
+
+            window.open(url, '_blank', 'noopener');
+        });
+    </script>
 @endsection

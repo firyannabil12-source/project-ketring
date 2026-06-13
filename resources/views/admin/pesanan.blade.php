@@ -295,6 +295,7 @@
                     <th>Pembayaran</th>
                     <th>Status</th>
                     <th>Waktu</th>
+                    <th>Invoice</th>
                 </tr>
             </thead>
             <tbody id="ordersBody">
@@ -362,10 +363,17 @@
                         <td style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">
                             {{ $order->created_at->diffForHumans() }}
                         </td>
+                        <td>
+                            <a href="/invoice/{{ $order->id }}" target="_blank"
+                                style="display:inline-flex; align-items:center; gap: 0.35rem; background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; padding: 0.45rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-decoration: none; white-space: nowrap;">
+                                <i data-lucide="download"></i>
+                                Download
+                            </a>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7">
+                        <td colspan="9">
                             <div class="empty-state">
                                 <p>Belum ada pesanan masuk. Bagikan website Anda kepada pelanggan!</p>
                             </div>

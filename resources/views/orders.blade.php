@@ -1,6 +1,6 @@
 ﻿@extends('layouts.app')
 
-@section('title', 'Pesanan Saya - Risha Catering')
+@section('title', 'Pemesanan - Risha Catering')
 
 @section('styles')
     <style>
@@ -27,8 +27,9 @@
 
         .orders-layout {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: minmax(0, 720px);
             gap: 2rem;
+            justify-content: center;
             align-items: start;
         }
 
@@ -38,8 +39,6 @@
             border-radius: 16px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             overflow: hidden;
-            position: sticky;
-            top: 6rem;
         }
 
         .checkout-card-header {
@@ -70,6 +69,33 @@
             margin-bottom: 1.5rem;
         }
 
+        .cart-summary-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.875rem;
+        }
+
+        .cart-summary-title h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+        }
+
+        .cart-summary-title a {
+            color: #E8572A;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 999px;
+            padding: 0.4rem 0.8rem;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
         .cart-summary-empty {
             text-align: center;
             padding: 1.5rem;
@@ -85,20 +111,49 @@
 
         .cart-sum-item {
             display: flex;
-            justify-content: space-between;
+            gap: 0.875rem;
             align-items: center;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 0.75rem;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
             font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+            background: #fff;
         }
 
         .cart-sum-item:last-child {
-            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .cart-sum-img {
+            width: 62px;
+            height: 62px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #f1f5f9;
+        }
+
+        .cart-sum-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cart-sum-item .item-category {
+            color: #94a3b8;
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.15rem;
         }
 
         .cart-sum-item .item-name {
             color: #334155;
             font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .cart-sum-item .item-qty {
@@ -109,6 +164,50 @@
         .cart-sum-item .item-price {
             font-weight: 700;
             color: #0f172a;
+            margin-top: 0.25rem;
+        }
+
+        .cart-sum-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            flex-shrink: 0;
+        }
+
+        .cart-sum-actions .qty-btn,
+        .cart-sum-remove {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            border: 1px solid #fed7aa;
+            background: #fff7ed;
+            color: #E8572A;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 800;
+            transition: all 0.2s;
+        }
+
+        .cart-sum-actions .qty-btn:hover,
+        .cart-sum-remove:hover {
+            background: #E8572A;
+            color: #fff;
+        }
+
+        .cart-sum-actions .qty-display {
+            min-width: 24px;
+            text-align: center;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .cart-sum-remove {
+            margin-left: 0.25rem;
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
         }
 
         .cart-sum-total {
@@ -555,6 +654,34 @@
             display: none !important;
         }
 
+        .map-pin {
+            width: 34px;
+            height: 34px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            border: 3px solid #fff;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, .25);
+        }
+
+        .map-pin::after {
+            content: "";
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fff;
+            top: 8px;
+            left: 8px;
+        }
+
+        .map-pin-store {
+            background: #2563eb;
+        }
+
+        .map-pin-user {
+            background: #e8572a;
+        }
+
         .distance-label div {
             background: #16a34a;
             color: white;
@@ -574,6 +701,16 @@
             .checkout-card {
                 position: static;
             }
+
+            .cart-sum-item {
+                align-items: flex-start;
+            }
+
+            .cart-sum-actions {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                max-width: 96px;
+            }
         }
     </style>
 @endsection
@@ -583,177 +720,12 @@
         <div class="container">
             <div class="page-header">
                 <h1>Pemesanan</h1>
-                <p>Isi form di bawah untuk menyelesaikan pesanan Anda, lalu pantau status pesanan secara real-time.</p>
+                <p>Isi form di bawah untuk menyelesaikan pesanan Anda.</p>
             </div>
 
             <div class="orders-layout">
 
-                <!-- Left: Daftar Pesanan -->
-                <div class="orders-list-section">
-                    <div class="section-title-row">
-                        <h2>Riwayat Pesanan Anda</h2>
-                        <div class="realtime-badge">
-                            <span class="live-dot"></span>
-                            Live Update
-                        </div>
-                    </div>
-
-                    <div id="ordersList">
-                        @if ($orders->isNotEmpty())
-                            @foreach ($orders as $order)
-                                <div class="order-card" id="order-{{ $order->id }}" data-order-id="{{ $order->id }}">
-                                    <div class="order-card-header">
-                                        <span class="order-id-badge">#ORD-{{ $order->id }}</span>
-                                        <span class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</span>
-                                        <span class="status-indicator status-{{ $order->status }}"
-                                            id="status-badge-{{ $order->id }}">
-                                            @php
-                                                $statusLabel = [
-                                                    'pending' => 'Menunggu Konfirmasi',
-                                                    'diproses' => 'Sedang Diproses',
-                                                    'dikirim' => 'Sedang Dikirim',
-                                                    'selesai' => 'Selesai',
-                                                    'dibatalkan' => 'Dibatalkan',
-                                                ];
-                                            @endphp
-                                            {{ $statusLabel[$order->status] ?? ucfirst($order->status) }}
-                                        </span>
-                                    </div>
-
-                                    <div class="order-card-body">
-                                        <div class="order-info-grid">
-                                            <div class="order-info-item">
-                                                <div class="lbl">Nama</div>
-                                                <div class="val">{{ $order->customer_name }}</div>
-                                            </div>
-                                            <div class="order-info-item">
-                                                <div class="lbl">No. HP</div>
-                                                <div class="val">{{ $order->customer_phone }}</div>
-                                            </div>
-                                            <div class="order-info-item">
-                                                <div class="lbl">Tanggal Acara</div>
-                                                <div class="val">
-                                                    {{ $order->event_date ? $order->event_date->format('d M Y') : '-' }}
-                                                </div>
-                                            </div>
-                                            <div class="order-info-item">
-                                                <div class="lbl">Alamat Acara</div>
-                                                <div class="val">{{ $order->event_address ?? '-' }}</div>
-                                            </div>
-                                            <div class="order-info-item">
-                                                <div class="lbl">Pembayaran</div>
-                                                <div class="val">
-                                                    <span
-                                                        style="text-transform: capitalize;">{{ $order->payment_method ?? 'Cash/Transfer' }}</span>
-                                                    @if ($order->payment_status === 'unpaid')
-                                                        <span
-                                                            style="color: #dc2626; font-size: 0.75rem; margin-left: 5px; font-weight: 700;">(Belum
-                                                            Dibayar)</span>
-                                                    @elseif($order->payment_status === 'paid')
-                                                        <span
-                                                            style="color: #16a34a; font-size: 0.75rem; margin-left: 5px; font-weight: 700;">(Lunas)</span>
-                                                    @elseif($order->payment_status === 'expired')
-                                                        <span
-                                                            style="color: #64748b; font-size: 0.75rem; margin-left: 5px; font-weight: 700;">(Kedaluwarsa)</span>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            @if ($order->estimation_time && in_array($order->status, ['diproses', 'selesai']))
-                                                <div class="order-info-item">
-                                                    <div class="lbl">Estimasi Pembuatan</div>
-                                                    <div class="val" style="color: #E8572A; font-weight: 800;">
-                                                        {{ $order->estimation_time }}</div>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        <!-- Payment Countdown -->
-                                        @if ($order->payment_status === 'unpaid' && $order->payment_expires_at && $order->payment_expires_at->isFuture())
-                                            <div
-                                                style="background: #fef2f2; border: 1px dashed #fca5a5; padding: 0.75rem; border-radius: 10px; margin-bottom: 1rem; text-align: center;">
-                                                <div
-                                                    style="font-size: 0.78rem; color: #dc2626; font-weight: 600; margin-bottom: 0.25rem;">
-                                                    Selesaikan Pembayaran Dalam:</div>
-                                                <div class="payment-countdown"
-                                                    data-expires-at="{{ $order->payment_expires_at->toIso8601String() }}"
-                                                    data-order-id="{{ $order->id }}"
-                                                    style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: #991b1b; letter-spacing: 2px;">
-                                                    --:--
-                                                </div>
-                                                @if ($order->payment_url)
-                                                    <a href="{{ $order->payment_url }}" target="_blank"
-                                                        style="display: inline-block; margin-top: 0.5rem; background: #dc2626; color: white; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-size: 0.8rem; font-weight: 700;">Bayar
-                                                        Sekarang</a>
-                                                @endif
-                                            </div>
-                                        @endif
-
-                                        <!-- Progress -->
-                                        @if ($order->status !== 'dibatalkan')
-                                            <div class="order-progress">
-                                                <span
-                                                    class="{{ $order->status == 'pending' ? 'active' : '' }}">Pending</span>
-                                                <span
-                                                    class="{{ $order->status == 'diproses' ? 'active' : '' }}">Diproses</span>
-                                                <span
-                                                    class="{{ $order->status == 'dikirim' ? 'active' : '' }}">Dikirim</span>
-                                                <span
-                                                    class="{{ $order->status == 'selesai' ? 'active' : '' }}">Selesai</span>
-                                            </div>
-                                        @endif
-
-                                        <!-- Items -->
-                                        <div class="order-items-list">
-                                            <div class="order-items-title">Detail Pesanan</div>
-                                            @foreach ($order->items as $item)
-                                                <div class="order-item-row">
-                                                    <span class="item-name">{{ $item->menu->name ?? 'Menu dihapus' }} x
-                                                        {{ $item->quantity }}</span>
-                                                    <span class="item-total">Rp
-                                                        {{ number_format($item->price * $item->quantity, 0, ',', '.') }}</span>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-
-                                    <div class="order-card-footer">
-                                        <span class="order-grand-total">
-                                            <small>Total Bayar</small><br>
-                                            Rp {{ number_format($order->total_price, 0, ',', '.') }}
-                                        </span>
-                                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                                            @if ($order->status === 'pending')
-                                                <span style="font-size: 0.78rem; color: #f59e0b; font-weight: 600;">Menunggu
-                                                    konfirmasi admin...</span>
-                                            @elseif($order->status === 'diproses')
-                                                <span style="font-size: 0.78rem; color: #3b82f6; font-weight: 600;">Sedang
-                                                    dimasak untuk Anda!</span>
-                                            @elseif($order->status === 'dikirim')
-                                                <span style="font-size: 0.78rem; color: #7c3aed; font-weight: 600;">Pesanan
-                                                    sedang dikirim ke lokasi acara.</span>
-                                            @elseif($order->status === 'selesai')
-                                                <span style="font-size: 0.78rem; color: #16a34a; font-weight: 600;">Pesanan
-                                                    selesai. Selamat menikmati!</span>
-                                            @endif
-
-                                            <a href="/invoice/{{ $order->id }}" target="_blank" class="btn-invoice">
-                                                Download Invoice
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="no-orders-state">
-                                <p>Anda belum memiliki pesanan.<br>Tambahkan menu ke keranjang dan checkout untuk mulai
-                                    memesan.</p>
-                                <a href="{{ route('menu') }}">Lihat Menu Kami</a>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Right: Checkout Form -->
+                <!-- Checkout Form -->
                 <div>
                     <div class="checkout-card">
                         <div class="checkout-card-header">
@@ -764,6 +736,10 @@
 
                             <!-- Cart Summary -->
                             <div class="cart-summary" id="checkoutCartSummary">
+                                <div class="cart-summary-title">
+                                    <h4>Daftar Item</h4>
+                                    <a href="{{ route('menu') }}">Tambah Menu</a>
+                                </div>
                                 <div class="cart-summary-empty" id="cartSummaryEmpty">
                                     <p>Keranjang kosong.<br><a href="{{ route('menu') }}">Tambah menu terlebih dahulu</a>
                                     </p>
@@ -873,6 +849,12 @@
 @section('scripts')
     <script>
         // Cart Summary di halaman pesanan 
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value ?? '';
+            return div.innerHTML;
+        }
+
         function renderCheckoutCart(data) {
             const empty = document.getElementById('cartSummaryEmpty');
             const items = document.getElementById('cartSummaryItems');
@@ -896,15 +878,34 @@
             btnPesan.textContent = `Pesan Sekarang (${data.count} item)`;
             document.querySelector('#checkoutForm p').style.display = 'none';
 
-            items.innerHTML = data.cart.map(item => `
+            items.innerHTML = data.cart.map(item => {
+                const imgSrc = escapeHtml(item.image && item.image.startsWith('http')
+                    ? item.image
+                    : '/' + (item.image || 'images/placeholder.png'));
+                const name = escapeHtml(item.name);
+                const category = escapeHtml(item.category || 'Menu');
+                const menuId = Number(item.menu_id);
+                const quantity = Number(item.quantity);
+                const price = Number(item.price);
+
+                return `
  <div class="cart-sum-item">
- <div>
- <div class="item-name">${item.name}</div>
- <div class="item-qty">x ${item.quantity} porsi</div>
+ <img src="${imgSrc}" alt="${name}" class="cart-sum-img"
+ onerror="this.src='https://via.placeholder.com/62x62/E8572A/white?text=M'">
+ <div class="cart-sum-info">
+ <div class="item-category">${category}</div>
+ <div class="item-name">${name}</div>
+ <div class="item-price">Rp ${price.toLocaleString('id-ID')}</div>
  </div>
- <div class="item-price">Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</div>
+ <div class="cart-sum-actions">
+ <button type="button" class="qty-btn" onclick="updateQty(${menuId}, ${quantity - 1})" aria-label="Kurangi ${name}">-</button>
+ <span class="qty-display">${quantity}</span>
+ <button type="button" class="qty-btn" onclick="updateQty(${menuId}, ${quantity + 1})" aria-label="Tambah ${name}">+</button>
+ <button type="button" class="cart-sum-remove" onclick="removeFromCart(${menuId})" aria-label="Hapus ${name}">&times;</button>
  </div>
- `).join('');
+ </div>
+ `;
+            }).join('');
 
             document.getElementById('checkoutTotal').textContent = 'Rp ' + Number(data.total).toLocaleString('id-ID');
         }
@@ -917,92 +918,6 @@
                 renderCheckoutCart(data);
             });
 
-        // Real-time status polling 
-        const orderIds = @json($orders->pluck('id'));
-
-        function pollOrderStatus() {
-            if (orderIds.length === 0) return;
-
-            fetch('{{ route('api.order.status') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        ids: orderIds
-                    })
-                })
-                .then(r => r.json())
-                .then(orders => {
-                    orders.forEach(order => {
-                        const badge = document.getElementById(`status-badge-${order.id}`);
-                        if (!badge) return;
-
-                        const statusMap = {
-                            'pending': {
-                                label: 'Menunggu Konfirmasi',
-                                cls: 'status-pending'
-                            },
-                            'diproses': {
-                                label: 'Sedang Diproses',
-                                cls: 'status-diproses'
-                            },
-                            'dikirim': {
-                                label: 'Sedang Dikirim',
-                                cls: 'status-dikirim'
-                            },
-                            'selesai': {
-                                label: 'Selesai',
-                                cls: 'status-selesai'
-                            },
-                            'dibatalkan': {
-                                label: 'Dibatalkan',
-                                cls: 'status-dibatalkan'
-                            },
-                        };
-                        const current = statusMap[order.status];
-                        if (!current) return;
-
-                        // Only update if status changed
-                        if (!badge.classList.contains(current.cls)) {
-                            badge.className = `status-indicator ${current.cls}`;
-                            badge.textContent = current.label;
-                            showUserToast(`Pesanan #ORD-${order.id}: Status berubah ke "${current.label}"`,
-                                'success');
-                        }
-                    });
-                })
-                .catch(() => {});
-        }
-
-        // Poll every 15 seconds
-        if (orderIds.length > 0) {
-            setInterval(pollOrderStatus, 15000);
-        }
-
-        // Payment Countdown Timer 
-        function updateCountdowns() {
-            document.querySelectorAll('.payment-countdown').forEach(el => {
-                const expiresAt = new Date(el.dataset.expiresAt).getTime();
-                const now = new Date().getTime();
-                const distance = expiresAt - now;
-
-                if (distance < 0) {
-                    el.innerHTML = "WAKTU HABIS";
-                    el.style.color = "#64748b";
-                    // Optional: You could trigger an API call to mark as expired if you don't do it via cron.
-                } else {
-                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                    el.innerHTML = String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0');
-                }
-            });
-        }
-        setInterval(updateCountdowns, 1000);
-        updateCountdowns(); // initial call
-
         // Leaflet Map 
         const map = L.map('map').setView([-6.2088, 106.8456], 13);
 
@@ -1012,13 +927,30 @@
 
         let marker;
         let routingControl;
+        let fallbackRoute;
         let distanceMarker;
         const cateringLat = -6.410915594179738;
         const cateringLng = 106.75735160036807;
         const catering = L.latLng(cateringLat, cateringLng);
+        const storeIcon = L.divIcon({
+            className: '',
+            html: '<div class="map-pin map-pin-store"></div>',
+            iconSize: [34, 34],
+            iconAnchor: [17, 34],
+            popupAnchor: [0, -34]
+        });
+        const userIcon = L.divIcon({
+            className: '',
+            html: '<div class="map-pin map-pin-user"></div>',
+            iconSize: [34, 34],
+            iconAnchor: [17, 34],
+            popupAnchor: [0, -34]
+        });
 
         // Marker catering
-        L.marker(catering).addTo(map).bindPopup('Risha Catering');
+        L.marker(catering, {
+            icon: storeIcon
+        }).addTo(map).bindPopup('Risha Catering');
 
         async function setMarker(lat, lng) {
             document.getElementById('latitude').value = lat;
@@ -1028,10 +960,16 @@
             if (marker) {
                 map.removeLayer(marker);
             }
-            marker = L.marker(user).addTo(map).bindPopup('Lokasi User').openPopup();
+            marker = L.marker(user, {
+                icon: userIcon
+            }).addTo(map).bindPopup('Lokasi User').openPopup();
 
             if (routingControl) {
                 map.removeControl(routingControl);
+            }
+
+            if (fallbackRoute) {
+                map.removeLayer(fallbackRoute);
             }
 
             if (distanceMarker) {
@@ -1043,6 +981,13 @@
                     catering,
                     user
                 ],
+                lineOptions: {
+                    styles: [{
+                        color: '#2563eb',
+                        opacity: 0.9,
+                        weight: 5
+                    }]
+                },
                 routeWhileDragging: false,
                 addWaypoints: false,
                 draggableWaypoints: false,
@@ -1053,6 +998,24 @@
                     return null;
                 }
             }).addTo(map);
+
+            fallbackRoute = L.polyline([catering, user], {
+                color: '#16a34a',
+                weight: 4,
+                opacity: 0.85,
+                dashArray: '8 8'
+            }).addTo(map);
+
+            routingControl.on('routesfound', function() {
+                if (fallbackRoute) {
+                    map.removeLayer(fallbackRoute);
+                    fallbackRoute = null;
+                }
+            });
+
+            routingControl.on('routingerror', function(error) {
+                console.warn('Rute jalan tidak tersedia, memakai garis lurus sementara.', error);
+            });
 
             function hitungJarak(lat1, lon1, lat2, lon2) {
                 const R = 6371; // KM

@@ -8,69 +8,137 @@ Copy mulai dari `@startuml` sampai `@enduml`, lalu paste ke draw.io melalui **Ar
 
 ```plantuml
 @startuml
-title Activity Diagram Pemesanan Katering
+title Activity Diagram Pemesanan Katering Mama Iksan
 
-|Pelanggan|
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor white
+  BorderColor #333333
+  FontColor #111111
+  DiamondBackgroundColor white
+  DiamondBorderColor #333333
+  StartColor black
+  EndColor black
+}
+skinparam ArrowColor #333333
+skinparam ArrowThickness 1.2
+skinparam swimlane {
+  BorderColor #333333
+  TitleBackgroundColor #f5f5f5
+  TitleFontColor #111111
+}
+
+|Pembeli|
 start
-:Buka website;
-:Lihat menu katering;
-:Pilih menu;
-:Tambah ke keranjang;
-:Checkout;
+:Membuka website;
+:Login / daftar akun;
 
-if (Sudah login?) then (Ya)
+|Sistem|
+:Validasi login;
+if (Login valid?) then (Ya)
+  :Menampilkan halaman utama;
 else (Tidak)
- :Login / daftar akun;
+  :Menampilkan pesan login gagal;
+  |Pembeli|
+  :Mengisi ulang data login;
+  |Sistem|
+  :Validasi login;
 endif
 
-:Isi data pemesanan;
-:Pilih pembayaran Duitku;
-:Kirim pesanan;
+|Pembeli|
+:Mencari dan melihat menu;
 
-|Sistem Web|
-:Validasi data pesanan;
+|Sistem|
+:Menampilkan daftar menu;
 
-if (Data valid?) then (Ya)
- :Simpan pesanan;
- :Simpan detail menu;
- :Buat link pembayaran;
+|Pembeli|
+:Memilih menu;
+:Menambahkan menu ke keranjang;
+
+|Sistem|
+:Validasi stok menu;
+if (Stok tersedia?) then (Ya)
+  :Menyimpan item ke session keranjang;
+  :Menampilkan isi keranjang dan total harga;
 else (Tidak)
- |Pelanggan|
- :Perbaiki data pesanan;
+  :Menampilkan notifikasi stok tidak cukup;
+  |Pembeli|
+  :Memilih menu / jumlah lain;
  stop
 endif
 
-|Duitku|
-:Menampilkan halaman pembayaran;
+|Pembeli|
+:Checkout pesanan;
+:Mengisi data pemesanan;
+:Memilih pembayaran Duitku;
+:Mengirim pesanan;
 
-|Pelanggan|
-:Melakukan pembayaran;
-
-|Duitku|
-:Mengirim status pembayaran;
-
-|Sistem Web|
-if (Pembayaran berhasil?) then (Ya)
- :Ubah status pembayaran menjadi lunas;
- :Ubah status pesanan menjadi diproses;
+|Sistem|
+:Validasi data checkout;
+if (Data valid?) then (Ya)
+  :Membuat pesanan;
+  :Menyimpan detail pesanan;
+  :Mengurangi stok menu;
+  :Membuat invoice pembayaran Duitku;
 else (Tidak)
- :Ubah status pembayaran menjadi gagal;
+  :Menampilkan pesan kesalahan;
+  |Pembeli|
+  :Memperbaiki data checkout;
+  stop
 endif
 
-|Pelanggan|
-:Melihat status pesanan;
-:Download invoice jika perlu;
+if (Invoice berhasil dibuat?) then (Ya)
+  :Mengarahkan ke halaman pembayaran Duitku;
+else (Tidak)
+  :Menampilkan notifikasi gagal membuat pembayaran;
+  |Pembeli|
+  :Mengulang checkout / menghubungi admin;
+  stop
+endif
 
-|Admin|
+|Pembeli|
+:Melakukan pembayaran;
+
+|Sistem|
+:Menerima callback pembayaran Duitku;
+if (Pembayaran berhasil?) then (Ya)
+  :Mengubah payment_status menjadi paid;
+  :Mengubah status pesanan menjadi diproses;
+else (Tidak)
+  :Mengubah payment_status menjadi expired;
+  :Menampilkan status pembayaran belum berhasil;
+  |Pembeli|
+  :Melakukan pembayaran ulang sebelum kedaluwarsa;
+  stop
+endif
+
+|Admin / Penjual|
 :Login admin;
-:Melihat pesanan masuk;
-:Update status pesanan;
 
-|Sistem Web|
-:Menyimpan status terbaru;
+|Sistem|
+:Validasi akun admin;
+if (Admin valid?) then (Ya)
+  :Menampilkan dashboard admin;
+else (Tidak)
+  :Menampilkan pesan login admin gagal;
+  stop
+endif
 
-|Pelanggan|
-:Melihat status terbaru;
+|Admin / Penjual|
+:Membuka pesanan masuk;
+:Mengonfirmasi pembayaran bila diperlukan;
+:Memperbarui status pesanan;
+
+|Sistem|
+:Menyimpan status pesanan;
+:Mengirim status terbaru ke halaman riwayat;
+
+|Pembeli|
+:Melihat status pesanan;
+:Mengunduh invoice;
+
+|Admin / Penjual|
 stop
 
 @enduml

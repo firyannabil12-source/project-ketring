@@ -452,7 +452,225 @@
  background: #ef4444;
  color: white !important;
  }
- </style>
+
+  /* Nav Actions Container */
+  .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+  }
+
+  /* Auth Buttons (Login / Register) */
+  .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+  }
+  .btn-login-nav {
+      text-decoration: none;
+      color: var(--secondary, #2C3E50);
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: var(--transition, all 0.3s);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+  }
+  .btn-login-nav:hover {
+      color: var(--primary, #E67E22);
+      background: rgba(230, 126, 34, 0.05);
+  }
+  .btn-register-nav {
+      text-decoration: none;
+      background: linear-gradient(135deg, var(--primary, #E67E22), #f97316);
+      color: white !important;
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.55rem 1.25rem;
+      border-radius: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(230, 126, 34, 0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+  }
+  .btn-register-nav:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(230, 126, 34, 0.3);
+  }
+
+  /* User Dropdown */
+  .user-dropdown {
+      position: relative;
+      display: inline-block;
+  }
+  .user-dropdown-btn {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      color: var(--secondary, #2C3E50);
+      border-radius: 8px;
+      padding: 0.45rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      transition: all 0.2s;
+  }
+  .user-dropdown-btn:hover {
+      border-color: var(--primary, #E67E22);
+      background: white;
+  }
+  .user-dropdown-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2.2;
+  }
+  .user-dropdown-btn .chevron-icon {
+      transition: transform 0.2s;
+      width: 14px;
+      height: 14px;
+  }
+  .user-dropdown.open .user-dropdown-btn .chevron-icon {
+      transform: rotate(180deg);
+  }
+  .user-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 240px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12), 0 1px 3px rgba(15, 23, 42, 0.04);
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      padding: 0.5rem;
+      display: none;
+      z-index: 1005;
+      animation: dropdownSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .user-dropdown-menu.show {
+      display: block;
+  }
+  @keyframes dropdownSlide {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+  .dropdown-header {
+      padding: 0.75rem 1rem;
+  }
+  .dropdown-header .user-name {
+      font-weight: 700;
+      color: var(--secondary, #2C3E50);
+      font-size: 0.925rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+  }
+  .dropdown-header .user-email {
+      font-size: 0.75rem;
+      color: var(--text-muted, #64748b);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+      margin-bottom: 0;
+  }
+  .dropdown-divider {
+      height: 1px;
+      background: #f1f5f9;
+      margin: 0.4rem 0;
+  }
+  .user-dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.6rem 0.75rem;
+      color: var(--text-main, #1F2937) !important;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.15s;
+  }
+  .user-dropdown-menu a:hover {
+      background: #f1f5f9;
+      color: var(--primary, #E67E22) !important;
+  }
+  .user-dropdown-menu a svg {
+      width: 16px;
+      height: 16px;
+      color: #64748b;
+      stroke-width: 2.2;
+      transition: color 0.15s;
+  }
+  .user-dropdown-menu a:hover svg {
+      color: var(--primary, #E67E22);
+  }
+  .user-dropdown-menu a.admin-link {
+      color: var(--primary, #E67E22) !important;
+      font-weight: 600;
+  }
+  .user-dropdown-menu a.admin-link svg {
+      color: var(--primary, #E67E22);
+  }
+  .user-dropdown-menu a.logout-link {
+      color: #ef4444 !important;
+  }
+  .user-dropdown-menu a.logout-link svg {
+      color: #ef4444;
+  }
+  .user-dropdown-menu a.logout-link:hover {
+      background: #fee2e2;
+  }
+
+  /* Mobile profile widget in drawer */
+  .mobile-user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 1.5rem;
+  }
+  .mobile-user-profile .avatar-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(230, 126, 34, 0.1);
+      color: var(--primary, #E67E22);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+  .mobile-user-profile .avatar-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2.2;
+  }
+  .mobile-user-profile .user-details .name {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--secondary, #2C3E50);
+  }
+  .mobile-user-profile .user-details .email {
+      font-size: 0.75rem;
+      color: var(--text-muted, #64748b);
+  }
+
+  /* Responsive visibility adjustments */
+  @media (max-width: 768px) {
+      .auth-buttons, .user-dropdown {
+          display: none !important;
+      }
+      .mobile-menu-toggle {
+          display: flex !important;
+      }
+  }
+  </style>
 
  @yield('styles')
 </head>
@@ -488,69 +706,113 @@
  </div>
  </div>
 
- <!-- Navbar -->
- <header class="navbar">
- <div class="container">
- <a href="{{ route('home') }}" class="logo">
- <span class="logo-accent">Risha</span> Catering
- </a>
- <nav class="nav-links">
- <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i data-lucide="home"></i>Beranda</a>
- <a href="{{ route('menu') }}" class="{{ request()->routeIs('menu') ? 'active' : '' }}"><i data-lucide="utensils"></i>Menu</a>
- <a href="{{ route('orders') }}" class="{{ request()->routeIs('orders') ? 'active' : '' }}"><i data-lucide="clipboard-list"></i>Pesanan</a>
- <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}"><i data-lucide="message-circle"></i>Kontak</a>
- 
- @auth
- @if(Auth::user()->role === 'admin')
- <a href="{{ route('admin.dashboard') }}" style="color: var(--primary);">Admin Panel</a>
- @endif
- <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="color: #ef4444;">Logout</a>
- <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
- @csrf
- </form>
- @else
- <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Login</a>
- @endauth
- </nav>
- <div style="display: flex; align-items: center; gap: 0.75rem;">
- <button class="cart-btn" onclick="openCart()" id="cartNavBtn">
- <i data-lucide="shopping-cart"></i>Keranjang
- <span class="cart-count" id="cartNavCount" style="display:none">0</span>
- </button>
- <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" id="mobileMenuToggle">
- <span class="bar"></span>
- <span class="bar"></span>
- <span class="bar"></span>
- </button>
- </div>
- </div>
- </header>
+  <!-- Navbar -->
+  <header class="navbar">
+  <div class="container">
+  <a href="{{ route('home') }}" class="logo">
+  <span class="logo-accent">Risha</span> Catering
+  </a>
+  <nav class="nav-links">
+  <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i data-lucide="home"></i>Beranda</a>
+  <a href="{{ route('menu') }}" class="{{ request()->routeIs('menu') ? 'active' : '' }}"><i data-lucide="utensils"></i>Menu</a>
+  <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}"><i data-lucide="message-circle"></i>Kontak</a>
+  </nav>
+  
+  <div class="nav-actions">
+  <button class="cart-btn" onclick="openCart()" id="cartNavBtn">
+  <i data-lucide="shopping-cart"></i>Keranjang
+  <span class="cart-count" id="cartNavCount" style="display:none">0</span>
+  </button>
+  
+  @auth
+  <div class="user-dropdown" id="userDropdown">
+      <button class="user-dropdown-btn" onclick="toggleUserDropdown()" aria-label="Menu Pengguna">
+          <i data-lucide="user"></i>
+          <span>{{ Auth::user()->name }}</span>
+          <i data-lucide="chevron-down" class="chevron-icon"></i>
+      </button>
+      <div class="user-dropdown-menu" id="userDropdownMenu">
+          <div class="dropdown-header">
+              <p class="user-name">{{ Auth::user()->name }}</p>
+              <p class="user-email">{{ Auth::user()->email }}</p>
+          </div>
+          <div class="dropdown-divider"></div>
+          <a href="{{ route('orders') }}" class="{{ request()->routeIs('orders') ? 'active' : '' }}">
+              <i data-lucide="clipboard-list"></i> Pesanan
+          </a>
+          <a href="{{ route('order.history') }}" class="{{ request()->routeIs('order.history') ? 'active' : '' }}">
+              <i data-lucide="history"></i> Riwayat Pemesanan
+          </a>
+          @if(Auth::user()->role === 'admin')
+              <a href="{{ route('admin.dashboard') }}" class="admin-link">
+                  <i data-lucide="layout-dashboard"></i> Admin Panel
+              </a>
+          @endif
+          <div class="dropdown-divider"></div>
+          <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="logout-link">
+              <i data-lucide="log-out"></i> Logout
+          </a>
+      </div>
+  </div>
+  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+  @csrf
+  </form>
+  @else
+  <div class="auth-buttons">
+      <a href="{{ route('login') }}" class="btn-login-nav">Masuk</a>
+      <a href="{{ route('register') }}" class="btn-register-nav">Daftar</a>
+  </div>
+  @endauth
+  
+  <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu" id="mobileMenuToggle">
+  <span class="bar"></span>
+  <span class="bar"></span>
+  <span class="bar"></span>
+  </button>
+  </div>
+  </div>
+  </header>
 
- <!-- Mobile Navigation Drawer -->
- <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileMenu()"></div>
- <div class="mobile-nav-drawer" id="mobileNavDrawer">
- <div class="mobile-nav-header">
- <a href="{{ route('home') }}" class="logo" onclick="closeMobileMenu()">
- <span class="logo-accent">Risha</span> Catering
- </a>
- <button class="mobile-nav-close" onclick="closeMobileMenu()" aria-label="Tutup menu"><i data-lucide="x"></i></button>
- </div>
- <nav class="mobile-nav-links">
- <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="home"></i>Beranda</a>
- <a href="{{ route('menu') }}" class="{{ request()->routeIs('menu') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="utensils"></i>Menu</a>
- <a href="{{ route('orders') }}" class="{{ request()->routeIs('orders') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="clipboard-list"></i>Pesanan</a>
- <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="message-circle"></i>Kontak</a>
- <div class="mobile-nav-divider"></div>
- @auth
- @if(Auth::user()->role === 'admin')
- <a href="{{ route('admin.dashboard') }}" style="color: var(--primary);" onclick="closeMobileMenu()">Admin Panel</a>
- @endif
- <a href="{{ route('logout') }}" class="btn-mobile-logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
- @else
- <a href="{{ route('login') }}" class="btn-mobile-login {{ request()->routeIs('login') ? 'active' : '' }}" onclick="closeMobileMenu()">Login</a>
- @endauth
- </nav>
- </div>
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="closeMobileMenu()"></div>
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+  <div class="mobile-nav-header">
+  <a href="{{ route('home') }}" class="logo" onclick="closeMobileMenu()">
+  <span class="logo-accent">Risha</span> Catering
+  </a>
+  <button class="mobile-nav-close" onclick="closeMobileMenu()" aria-label="Tutup menu"><i data-lucide="x"></i></button>
+  </div>
+
+  @auth
+  <div class="mobile-user-profile">
+      <div class="avatar-icon">
+          <i data-lucide="user"></i>
+      </div>
+      <div class="user-details">
+          <div class="name">{{ Auth::user()->name }}</div>
+          <div class="email">{{ Auth::user()->email }}</div>
+      </div>
+  </div>
+  <div class="mobile-nav-divider" style="margin: 0 1.5rem;"></div>
+  @endauth
+
+  <nav class="mobile-nav-links">
+  <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="home"></i>Beranda</a>
+  <a href="{{ route('menu') }}" class="{{ request()->routeIs('menu') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="utensils"></i>Menu</a>
+  <a href="{{ route('orders') }}" class="{{ request()->routeIs('orders') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="clipboard-list"></i>Pesanan</a>
+  <a href="{{ route('order.history') }}" class="{{ request()->routeIs('order.history') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="history"></i>Riwayat Pemesanan</a>
+  <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}" onclick="closeMobileMenu()"><i data-lucide="message-circle"></i>Kontak</a>
+  <div class="mobile-nav-divider"></div>
+  @auth
+  @if(Auth::user()->role === 'admin')
+  <a href="{{ route('admin.dashboard') }}" style="color: var(--primary);" onclick="closeMobileMenu()">Admin Panel</a>
+  @endif
+  <a href="{{ route('logout') }}" class="btn-mobile-logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+  @else
+  <a href="{{ route('login') }}" class="btn-mobile-login {{ request()->routeIs('login') ? 'active' : '' }}" onclick="closeMobileMenu()">Login</a>
+  @endauth
+  </nav>
+  </div></div>
 
  <main>
  @if(session('success'))
@@ -574,6 +836,7 @@
  <a href="{{ route('home') }}"><i data-lucide="home"></i>Beranda</a>
  <a href="{{ route('menu') }}"><i data-lucide="utensils"></i>Menu</a>
  <a href="{{ route('orders') }}"><i data-lucide="clipboard-list"></i>Pesanan</a>
+ <a href="{{ route('order.history') }}"><i data-lucide="history"></i>Riwayat Pemesanan</a>
  <a href="{{ route('contact') }}"><i data-lucide="message-circle"></i>Kontak</a>
  </div>
  <div class="footer-contact">
@@ -799,9 +1062,31 @@
  if (toggleBtn) toggleBtn.classList.remove('open');
  if (drawer) drawer.classList.remove('open');
  if (overlay) overlay.classList.remove('open');
- document.body.style.overflow = '';
- }
- </script>
+  document.body.style.overflow = '';
+  }
+
+  // Account Dropdown Toggle
+  function toggleUserDropdown() {
+      const dropdown = document.getElementById('userDropdown');
+      const menu = document.getElementById('userDropdownMenu');
+      if (menu) {
+          const isShow = menu.classList.toggle('show');
+          dropdown.classList.toggle('open', isShow);
+      }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('userDropdown');
+      const menu = document.getElementById('userDropdownMenu');
+      if (dropdown && !dropdown.contains(event.target)) {
+          if (menu && menu.classList.contains('show')) {
+              menu.classList.remove('show');
+              dropdown.classList.remove('open');
+          }
+      }
+  });
+  </script>
  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
  @yield('scripts')

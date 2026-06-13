@@ -401,6 +401,9 @@
  @if(session('success'))
  <div id="sessionToast" style="display:none">{{ session('success') }}</div>
  @endif
+ @if(session('error'))
+ <div id="sessionErrorToast" style="display:none">{{ session('error') }}</div>
+ @endif
 
  @yield('content')
  </main>
@@ -423,6 +426,8 @@
  // Show session toast
  const sessionToastEl = document.getElementById('sessionToast');
  if (sessionToastEl) showToast(sessionToastEl.textContent.trim());
+ const sessionErrorToastEl = document.getElementById('sessionErrorToast');
+ if (sessionErrorToastEl) showToast(sessionErrorToastEl.textContent.trim(), 'error');
 
  // Poll pending orders count for sidebar badge
  function updatePendingBadge() {

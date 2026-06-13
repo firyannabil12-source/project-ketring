@@ -222,9 +222,10 @@
                     <div class="form-group">
                         <label>Kategori *</label>
                         <input type="text" name="category" id="categoryInput"
-                            value="{{ old('category', $menu->category ?? '') }}" placeholder="cth: NASI KOTAK" required>
+                            value="{{ old('category', $menu->category ?? '') }}" placeholder="cth: MASAKAN TRADISIONAL"
+                            required>
                         <div class="category-options">
-                            @foreach (['NASI KOTAK', 'TUMPENG', 'SNACK BOX', 'PRASMANAN', 'MINUMAN'] as $cat)
+                            @foreach (['MASAKAN TRADISIONAL', 'BENTO RICE', 'PRASMANAN CATERING', 'ANEKA BOLU', 'COOKIES', 'ANEKA NASI TUMPENG'] as $cat)
                                 <span
                                     class="cat-chip {{ old('category', $menu->category ?? '') === $cat ? 'selected' : '' }}"
                                     onclick="setCategory('{{ $cat }}')">{{ ucwords(strtolower($cat)) }}</span>

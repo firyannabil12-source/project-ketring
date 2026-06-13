@@ -15,6 +15,7 @@ Route::get('/', [PageController::class, 'index'])->name('home');
 Route::get('/menu', [PageController::class, 'menu'])->name('menu');
 Route::get('/kontak', [PageController::class, 'contact'])->name('contact');
 Route::get('/pesanan', [PageController::class, 'orders'])->name('orders');
+Route::get('/riwayat-pemesanan', [PageController::class, 'orderHistory'])->name('order.history');
 Route::get('/invoice/{id}', [InvoiceController::class, 'download']);
 
 // User Auth
@@ -67,4 +68,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });

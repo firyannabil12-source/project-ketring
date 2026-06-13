@@ -31,6 +31,13 @@ class PageController extends Controller
 
     public function orders()
     {
+        $cart = session('cart', []);
+
+        return view('orders', compact('cart'));
+    }
+
+    public function orderHistory()
+    {
         $orders = collect([]);
         $trackedOrders = session('tracked_orders', []);
 
@@ -63,9 +70,7 @@ class PageController extends Controller
             }
         }
 
-        $cart = session('cart', []);
-
-        return view('orders', compact('orders', 'cart'));
+        return view('order_history', compact('orders'));
     }
 
     // API: status pesanan untuk polling real-time
