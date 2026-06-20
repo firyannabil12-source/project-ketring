@@ -126,13 +126,20 @@ class CartController extends Controller
     // POST: checkout simpan pesanan ke DB
     public function checkout(Request $request)
     {
+        $jabodetabekBounds = [
+            'min_lat' => -6.90,
+            'max_lat' => -5.90,
+            'min_lng' => 106.35,
+            'max_lng' => 107.25,
+        ];
+
         $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
             'event_date' => 'required|date|after_or_equal:today',
             'event_address' => 'required|string|max:500',
-            'latitude' => 'nullable|string',
-            'longitude' => 'nullable|string',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
             'payment_method' => 'required|string|in:duitku',
             'notes' => 'nullable|string|max:1000',
         ], [
@@ -143,6 +150,24 @@ class CartController extends Controller
             'event_address.required' => 'Alamat acara wajib diisi.',
             'payment_method.required' => 'Metode pembayaran wajib dipilih.',
         ]);
+
+        if ($request->filled('latitude') || $request->filled('longitude')) {
+            $lat = (float) $request->latitude;
+            $lng = (float) $request->longitude;
+
+            if (
+                ! $request->filled('latitude') ||
+                ! $request->filled('longitude') ||
+                $lat < $jabodetabekBounds['min_lat'] ||
+                $lat > $jabodetabekBounds['max_lat'] ||
+                $lng < $jabodetabekBounds['min_lng'] ||
+                $lng > $jabodetabekBounds['max_lng']
+            ) {
+                return back()
+                    ->withErrors(['latitude' => 'Lokasi pemesanan hanya mencakup area Jabodetabek.'])
+                    ->withInput();
+            }
+        }
 
         $cart = session('cart', []);
         if (empty($cart)) {

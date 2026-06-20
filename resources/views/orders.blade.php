@@ -27,9 +27,8 @@
 
         .orders-layout {
             display: grid;
-            grid-template-columns: minmax(0, 720px);
+            grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.75fr);
             gap: 2rem;
-            justify-content: center;
             align-items: start;
         }
 
@@ -39,6 +38,11 @@
             border-radius: 16px;
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             overflow: hidden;
+        }
+
+        .checkout-card.is-sticky {
+            position: sticky;
+            top: 1.5rem;
         }
 
         .checkout-card-header {
@@ -66,7 +70,7 @@
 
         /* Cart summary in checkout */
         .cart-summary {
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
         }
 
         .cart-summary-title {
@@ -113,11 +117,11 @@
             display: flex;
             gap: 0.875rem;
             align-items: center;
-            padding: 0.75rem;
+            padding: 0.9rem;
             border: 1px solid #f1f5f9;
             border-radius: 12px;
             font-size: 0.875rem;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.9rem;
             background: #fff;
         }
 
@@ -229,6 +233,44 @@
             font-size: 1.25rem;
             font-weight: 800;
             color: #E8572A;
+        }
+
+        .payment-summary {
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .payment-summary h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.85rem;
+        }
+
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.55rem 0;
+            color: #475569;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .payment-row.total {
+            border-top: 1px solid #f1f5f9;
+            margin-top: 0.35rem;
+            padding-top: 0.85rem;
+            color: #0f172a;
+        }
+
+        .payment-row.total span:last-child {
+            color: #E8572A;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
         }
 
         /* Form */
@@ -627,6 +669,13 @@
             position: relative;
         }
 
+        #map {
+            height: 320px;
+            border-radius: 10px;
+            border: 1.5px solid #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+
         .locate-btn {
             position: absolute;
             top: 80px;
@@ -693,12 +742,24 @@
             text-align: center;
         }
 
+        .map-area-warning {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.65rem 0.8rem;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            background: #fef2f2;
+            color: #dc2626;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
         @media (max-width: 900px) {
             .orders-layout {
                 grid-template-columns: 1fr;
             }
 
-            .checkout-card {
+            .checkout-card.is-sticky {
                 position: static;
             }
 
@@ -710,6 +771,10 @@
                 flex-wrap: wrap;
                 justify-content: flex-end;
                 max-width: 96px;
+            }
+
+            #map {
+                height: 360px;
             }
         }
     </style>
@@ -724,35 +789,53 @@
             </div>
 
             <div class="orders-layout">
-
-                <!-- Checkout Form -->
-                <div>
-                    <div class="checkout-card">
-                        <div class="checkout-card-header">
-                            <h3>Form Pemesanan</h3>
-                            <p>Isi detail acara Anda</p>
-                        </div>
-                        <div class="checkout-card-body">
-
-                            <!-- Cart Summary -->
-                            <div class="cart-summary" id="checkoutCartSummary">
-                                <div class="cart-summary-title">
-                                    <h4>Daftar Item</h4>
-                                    <a href="{{ route('menu') }}">Tambah Menu</a>
-                                </div>
-                                <div class="cart-summary-empty" id="cartSummaryEmpty">
-                                    <p>Keranjang kosong.<br><a href="{{ route('menu') }}">Tambah menu terlebih dahulu</a>
-                                    </p>
-                                </div>
-                                <div id="cartSummaryItems" style="display:none"></div>
-                                <div class="cart-sum-total" id="cartSummaryTotal" style="display:none">
-                                    <span class="label">Total Pesanan</span>
-                                    <span class="value" id="checkoutTotal">Rp 0</span>
-                                </div>
+                <div class="checkout-card">
+                    <div class="checkout-card-header">
+                        <h3>Daftar Item</h3>
+                        <p>Periksa menu pilihan Anda</p>
+                    </div>
+                    <div class="checkout-card-body">
+                        <div class="cart-summary" id="checkoutCartSummary">
+                            <div class="cart-summary-title">
+                                <h4>Keranjang Saya</h4>
+                                <a href="{{ route('menu') }}">Tambah Menu</a>
                             </div>
+                            <div class="cart-summary-empty" id="cartSummaryEmpty">
+                                <p>Keranjang kosong.<br><a href="{{ route('menu') }}">Tambah menu terlebih dahulu</a>
+                                </p>
+                            </div>
+                            <div id="cartSummaryItems" style="display:none"></div>
+                            <div class="cart-sum-total" id="cartSummaryTotal" style="display:none">
+                                <span class="label">Total Pesanan</span>
+                                <span class="value" id="checkoutTotal">Rp 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <!-- Checkout Form -->
-                            <form method="POST" action="{{ route('cart.checkout') }}" id="checkoutForm">
+                <div class="checkout-card is-sticky">
+                    <div class="checkout-card-header">
+                        <h3>Form Pemesanan</h3>
+                        <p>Isi detail acara dan lokasi</p>
+                    </div>
+                    <div class="checkout-card-body">
+                        <div class="payment-summary">
+                            <h4>Ringkasan</h4>
+                            <div class="payment-row">
+                                <span>Subtotal Menu</span>
+                                <span id="checkoutSideSubtotal">Rp 0</span>
+                            </div>
+                            <div class="payment-row">
+                                <span>Ongkos Kirim</span>
+                                <span>Belum tersedia</span>
+                            </div>
+                            <div class="payment-row total">
+                                <span>Total Bayar</span>
+                                <span id="checkoutSideTotal">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ route('cart.checkout') }}" id="checkoutForm">
                                 @csrf
 
                                 @if ($errors->any())
@@ -804,10 +887,11 @@
                                     <div class="map-wrapper">
                                         <button type="button" id="locateBtn" class="locate-btn"
                                             title="Cari Lokasi Saya">+</button>
-                                        <div id="map"
-                                            style="height: 400px; border-radius:10px; border: 1.5px solid #e2e8f0; margin-bottom: 0.5rem;">
-                                        </div>
+                                        <div id="map"></div>
                                     </div>
+                                    <p class="map-area-warning" id="mapAreaWarning">
+                                        Lokasi pemesanan hanya mencakup area Jabodetabek.
+                                    </p>
                                     <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
                                     <input type="hidden" name="longitude" id="longitude"
                                         value="{{ old('longitude') }}">
@@ -833,14 +917,13 @@
                                 <button type="submit" class="btn-pesan" id="btnPesan" disabled>
                                     Buat Pesanan
                                 </button>
-                                <p style="font-size: 0.72rem; color: #94a3b8; text-align: center; margin-top: 0.5rem;">
+                                <p id="checkoutEmptyHint"
+                                    style="font-size: 0.72rem; color: #94a3b8; text-align: center; margin-top: 0.5rem;">
                                     Tambahkan menu ke keranjang terlebih dahulu.
                                 </p>
-                            </form>
-                        </div>
+                        </form>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
@@ -860,6 +943,13 @@
             const items = document.getElementById('cartSummaryItems');
             const total = document.getElementById('cartSummaryTotal');
             const btnPesan = document.getElementById('btnPesan');
+            const checkoutEmptyHint = document.getElementById('checkoutEmptyHint');
+            const checkoutSideSubtotal = document.getElementById('checkoutSideSubtotal');
+            const checkoutSideTotal = document.getElementById('checkoutSideTotal');
+            const formattedTotal = 'Rp ' + Number(data.total || 0).toLocaleString('id-ID');
+
+            checkoutSideSubtotal.textContent = formattedTotal;
+            checkoutSideTotal.textContent = formattedTotal;
 
             if (!data.cart || data.cart.length === 0) {
                 empty.style.display = 'block';
@@ -867,7 +957,7 @@
                 total.style.display = 'none';
                 btnPesan.disabled = true;
                 btnPesan.textContent = 'Buat Pesanan';
-                document.querySelector('#checkoutForm p').style.display = 'block';
+                checkoutEmptyHint.style.display = 'block';
                 return;
             }
 
@@ -876,7 +966,7 @@
             total.style.display = 'flex';
             btnPesan.disabled = false;
             btnPesan.textContent = `Pesan Sekarang (${data.count} item)`;
-            document.querySelector('#checkoutForm p').style.display = 'none';
+            checkoutEmptyHint.style.display = 'none';
 
             items.innerHTML = data.cart.map(item => {
                 const imgSrc = escapeHtml(item.image && item.image.startsWith('http')
@@ -918,12 +1008,21 @@
                 renderCheckoutCart(data);
             });
 
-        // Leaflet Map 
-        const map = L.map('map').setView([-6.2088, 106.8456], 13);
+        // Leaflet Map
+        const jabodetabekBounds = L.latLngBounds(
+            L.latLng(-6.90, 106.35),
+            L.latLng(-5.90, 107.25)
+        );
+        const map = L.map('map', {
+            maxBounds: jabodetabekBounds,
+            maxBoundsViscosity: 1.0,
+            minZoom: 9
+        }).setView([-6.30, 106.85], 10);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
+        map.fitBounds(jabodetabekBounds);
 
         let marker;
         let routingControl;
@@ -932,6 +1031,7 @@
         const cateringLat = -6.410915594179738;
         const cateringLng = 106.75735160036807;
         const catering = L.latLng(cateringLat, cateringLng);
+        const mapAreaWarning = document.getElementById('mapAreaWarning');
         const storeIcon = L.divIcon({
             className: '',
             html: '<div class="map-pin map-pin-store"></div>',
@@ -952,7 +1052,27 @@
             icon: storeIcon
         }).addTo(map).bindPopup('Risha Catering');
 
+        function isInJabodetabek(lat, lng) {
+            return jabodetabekBounds.contains(L.latLng(Number(lat), Number(lng)));
+        }
+
+        function showMapAreaWarning(message) {
+            mapAreaWarning.textContent = message;
+            mapAreaWarning.style.display = 'block';
+        }
+
+        function hideMapAreaWarning() {
+            mapAreaWarning.style.display = 'none';
+        }
+
         async function setMarker(lat, lng) {
+            if (!isInJabodetabek(lat, lng)) {
+                showMapAreaWarning('Lokasi pemesanan hanya mencakup area Jabodetabek. Silakan pilih titik di Jakarta, Bogor, Depok, Tangerang, atau Bekasi.');
+                map.fitBounds(jabodetabekBounds);
+                return;
+            }
+
+            hideMapAreaWarning();
             document.getElementById('latitude').value = lat;
             document.getElementById('longitude').value = lng;
             const user = L.latLng(lat, lng);
@@ -1046,7 +1166,9 @@
                 })
             }).addTo(map);
 
-            map.fitBounds([catering, user]);
+            map.fitBounds(L.latLngBounds([catering, user]).pad(0.15), {
+                maxZoom: 14
+            });
 
             // Ambil alamat otomatis
             try {
@@ -1089,6 +1211,12 @@
             }
 
             navigator.geolocation.getCurrentPosition(function(position) {
+                if (!isInJabodetabek(position.coords.latitude, position.coords.longitude)) {
+                    showMapAreaWarning('Lokasi Anda berada di luar Jabodetabek. Silakan pilih titik acara di area Jabodetabek.');
+                    map.fitBounds(jabodetabekBounds);
+                    return;
+                }
+
                 setMarker(position.coords.latitude, position.coords.longitude);
             }, function() {
                 alert('Izinkan akses lokasi terlebih dahulu.');
