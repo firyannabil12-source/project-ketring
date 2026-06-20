@@ -10,7 +10,7 @@ class AdminAuthController extends Controller
 {
     public function showLogin()
     {
-        if (Auth::check() && Auth::user()->role === 'admin') {
+        if (Auth::guard('admin')->check() && Auth::guard('admin')->user()->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
@@ -31,16 +31,16 @@ class AdminAuthController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials)) {
-            if (Auth::user()->role !== 'admin') {
-                Auth::logout();
+        if (Auth::guard('admin')->attempt($credentials)) {
+            if (Auth::guard('admin')->user()->role !== 'admin') {
+                Auth::guard('admin')->logout();
 
                 return back()->withErrors(['email' => 'Akun ini tidak memiliki akses admin.']);
             }
             $request->session()->regenerate();
 
             return redirect()->route('admin.dashboard')
-                ->with('success', 'Selamat datang, '.Auth::user()->name.'!');
+                ->with('success', 'Selamat datang, '.Auth::guard('admin')->user()->name.'!');
         }
 
         return back()->withErrors([
@@ -50,7 +50,7 @@ class AdminAuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

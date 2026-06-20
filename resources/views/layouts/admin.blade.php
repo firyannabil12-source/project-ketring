@@ -369,9 +369,9 @@
 
  <div class="sidebar-bottom">
  <div class="admin-user-info">
- <div class="admin-avatar">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+ <div class="admin-avatar">{{ strtoupper(substr(Auth::guard('admin')->user()->name, 0, 1)) }}</div>
  <div>
- <div class="user-name">{{ Auth::user()->name }}</div>
+ <div class="user-name">{{ Auth::guard('admin')->user()->name }}</div>
  <div class="user-role">Administrator</div>
  </div>
  </div>

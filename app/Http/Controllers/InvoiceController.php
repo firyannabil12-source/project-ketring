@@ -13,9 +13,11 @@ class InvoiceController extends Controller
         $order = Order::with('items.menu')->findOrFail($id);
         $trackedOrders = session('tracked_orders', []);
         $user = Auth::user();
+        $admin = Auth::guard('admin')->user();
 
         $canDownload = in_array($order->id, $trackedOrders)
-        || ($user && ($order->user_id === $user->id || $user->role === 'admin'));
+        || ($user && $order->user_id === $user->id)
+        || $admin;
 
         abort_unless($canDownload, 403);
 

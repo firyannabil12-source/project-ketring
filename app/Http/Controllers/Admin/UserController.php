@@ -17,7 +17,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if ($user->id === Auth::id()) {
+        if ($user->id === Auth::guard('admin')->id()) {
             return back()->with('error', 'Akun yang sedang digunakan tidak bisa dihapus.');
         }
 

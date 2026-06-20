@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('page-title', 'Dashboard')
 @section('breadcrumb', 'Overview')
@@ -326,7 +326,7 @@
     <!-- Hero Banner -->
     <div class="hero-banner">
         <div>
-            <h2>Selamat datang, {{ Auth::user()->name }}!</h2>
+            <h2>Selamat datang, {{ Auth::guard('admin')->user()->name }}!</h2>
             <p>Pantau semua aktivitas katering Anda dari sini.</p>
             <a href="{{ route('admin.pesanan') }}" class="btn-primary-sm"><i data-lucide="receipt-text"></i>Lihat Pesanan
                 Masuk</a>
