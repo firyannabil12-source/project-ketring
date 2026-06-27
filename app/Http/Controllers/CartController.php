@@ -224,11 +224,12 @@ class CartController extends Controller
             $merchantCode = config('services.duitku.merchant_code');
             $apiKey = config('services.duitku.api_key');
             $env = config('services.duitku.env', 'sandbox');
-            $callbackUrl = config('services.duitku.callback_url');
-            $returnUrl = config('services.duitku.return_url');
+            $appUrl = rtrim(config('app.url'), '/');
+            $callbackUrl = config('services.duitku.callback_url') ?: $appUrl.'/callback';
+            $returnUrl = config('services.duitku.return_url') ?: $appUrl.'/riwayat-pemesanan';
 
             $timestamp = round(microtime(true) * 1000);
-            $signature = hash('sha256', $merchantCode.$timestamp.$apiKey);
+            $signature = hash_hmac('sha256', $merchantCode.$timestamp, $apiKey);
 
             $merchantOrderId = (string) $order->id;
             $paymentAmount = (int) $total;
