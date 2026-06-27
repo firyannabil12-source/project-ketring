@@ -944,7 +944,7 @@
  <div class="cart-item-name">${item.name}</div>
  <div class="cart-item-price">Rp ${Number(item.price).toLocaleString('id-ID')} / porsi</div>
  <div class="cart-qty-ctrl">
- <button class="qty-btn" onclick="updateQty(${item.menu_id}, ${item.quantity - 1})" aria-label="Kurangi jumlah"><i data-lucide="minus"></i></button>
+ <button class="qty-btn" onclick="updateQty(${item.menu_id}, ${item.quantity - 1})" ${item.quantity <= 10 ? 'disabled' : ''} aria-label="Kurangi jumlah"><i data-lucide="minus"></i></button>
  <span class="qty-display">${item.quantity}</span>
  <button class="qty-btn" onclick="updateQty(${item.menu_id}, ${item.quantity + 1})" aria-label="Tambah jumlah"><i data-lucide="plus"></i></button>
  </div>
@@ -966,7 +966,7 @@
  fetch(CART_ROUTES.add, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' },
- body: JSON.stringify({ menu_id: menuId, quantity: 1 })
+ body: JSON.stringify({ menu_id: menuId, quantity: 10 })
  })
  .then(r => r.json())
  .then(data => {
@@ -1000,6 +1000,10 @@
 
  function updateQty(menuId, newQty) {
  if (newQty < 0) return;
+ if (newQty > 0 && newQty < 10) {
+ showUserToast('Minimal pembelian 10 porsi untuk satu paket menu.', 'error');
+ return;
+ }
  fetch(CART_ROUTES.update, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' },

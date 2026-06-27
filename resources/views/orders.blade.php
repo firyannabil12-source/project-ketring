@@ -964,9 +964,11 @@
             empty.style.display = 'none';
             items.style.display = 'block';
             total.style.display = 'flex';
-            btnPesan.disabled = false;
-            btnPesan.textContent = `Pesan Sekarang (${data.count} item)`;
             checkoutEmptyHint.style.display = 'none';
+
+            const hasInvalidQty = data.cart.some(item => Number(item.quantity) < 10);
+            btnPesan.disabled = hasInvalidQty;
+            btnPesan.textContent = hasInvalidQty ? 'Min. 10 porsi per menu' : `Pesan Sekarang (${data.count} item)`;
 
             items.innerHTML = data.cart.map(item => {
                 const imgSrc = escapeHtml(item.image && item.image.startsWith('http')
@@ -988,7 +990,7 @@
  <div class="item-price">Rp ${price.toLocaleString('id-ID')}</div>
  </div>
  <div class="cart-sum-actions">
- <button type="button" class="qty-btn" onclick="updateQty(${menuId}, ${quantity - 1})" aria-label="Kurangi ${name}">-</button>
+ <button type="button" class="qty-btn" onclick="updateQty(${menuId}, ${quantity - 1})" ${quantity <= 10 ? 'disabled' : ''} aria-label="Kurangi ${name}">-</button>
  <span class="qty-display">${quantity}</span>
  <button type="button" class="qty-btn" onclick="updateQty(${menuId}, ${quantity + 1})" aria-label="Tambah ${name}">+</button>
  <button type="button" class="cart-sum-remove" onclick="removeFromCart(${menuId})" aria-label="Hapus ${name}">&times;</button>

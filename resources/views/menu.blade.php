@@ -515,9 +515,9 @@
                                     <option>Mika</option>
                                     <option>Besek</option>
                                 </select>
-                                <label for="menuQty">Jumlah Pesanan</label>
+                                <label for="menuQty">Jumlah Pesanan <small>(min. 10 porsi)</small></label>
                                 <div class="menu-qty-row">
-                                    <input type="number" min="1" value="1" class="menu-modal-qty"
+                                    <input type="number" min="10" value="10" class="menu-modal-qty"
                                         id="menuQty" oninput="updateMenuSubtotal()">
                                     <span class="menu-unit">Kotak</span>
                                 </div>
@@ -598,8 +598,8 @@
             document.getElementById('menuModalPrice').textContent = formatRupiah(activeMenuDetail.price);
             document.getElementById('menuModalDesc').textContent = activeMenuDetail.desc;
             document.getElementById('menuModalCategory').textContent = activeMenuDetail.category;
-            document.getElementById('menuQty').value = Math.min(5, Math.max(1, activeMenuDetail.stock || 1));
-            document.getElementById('menuQty').max = activeMenuDetail.stock || 1;
+            document.getElementById('menuQty').value = Math.min(activeMenuDetail.stock || 10, Math.max(10, activeMenuDetail.stock >= 10 ? 10 : activeMenuDetail.stock || 1));
+            document.getElementById('menuQty').max = activeMenuDetail.stock || 10;
             document.getElementById('menuOrderNote').value = '';
             updateMenuSubtotal();
 
@@ -616,8 +616,8 @@
         function updateMenuSubtotal() {
             if (!activeMenuDetail) return;
             const qtyInput = document.getElementById('menuQty');
-            const maxQty = activeMenuDetail.stock || 1;
-            let qty = Math.max(1, Math.min(Number(qtyInput.value || 1), maxQty));
+            const maxQty = activeMenuDetail.stock || 10;
+            let qty = Math.max(10, Math.min(Number(qtyInput.value || 10), maxQty));
             qtyInput.value = qty;
             document.getElementById('menuModalSubtotal').textContent = formatRupiah(activeMenuDetail.price * qty, false);
         }

@@ -30,7 +30,9 @@ class CartController extends Controller
     {
         $request->validate([
             'menu_id' => 'required|exists:menus,id',
-            'quantity' => 'integer|min:1',
+            'quantity' => 'integer|min:10',
+        ], [
+            'quantity.min' => 'Minimal pembelian 10 porsi untuk satu paket menu.',
         ]);
 
         $menu = Menu::findOrFail($request->menu_id);
@@ -95,6 +97,13 @@ class CartController extends Controller
             'menu_id' => 'required',
             'quantity' => 'required|integer|min:0',
         ]);
+
+        if ($request->quantity > 0 && $request->quantity < 10) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Minimal pembelian 10 porsi untuk satu paket menu.',
+            ], 422);
+        }
 
         $cart = session('cart', []);
         $key = 'menu_'.$request->menu_id;
@@ -182,6 +191,10 @@ class CartController extends Controller
 
             if (! $menu) {
                 return back()->with('error', 'Ada menu di keranjang yang sudah tidak tersedia. Silakan perbarui keranjang Anda.');
+            }
+
+            if ($item['quantity'] < 10) {
+                return back()->with('error', "Minimal pembelian untuk {$menu->name} adalah 10 porsi.");
             }
 
             if ($item['quantity'] > $menu->stock) {
