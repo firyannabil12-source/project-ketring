@@ -1,7 +1,7 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
-@section('page-title', 'Kelola Stok & Menu')
-@section('breadcrumb', 'Manajemen Stok')
+@section('page-title', 'Kelola Menu')
+@section('breadcrumb', 'Manajemen Menu')
 
 @section('styles')
     <style>
@@ -211,6 +211,14 @@
             font-weight: 700;
             padding: 4px 10px;
             border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-block;
+        }
+
+        .status-badge:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
         }
 
         .status-ok {
@@ -344,7 +352,7 @@
                     <th>Menu</th>
                     <th>Kategori</th>
                     <th>Harga</th>
-                    <th>Stok</th>
+                    <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -367,10 +375,14 @@
                         <td style="font-weight: 700; color: #E8572A;">Rp {{ number_format($menu->price, 0, ',', '.') }}
                         </td>
                         <td>
-                            @php
-                                $stockClass = $menu->stock <= 0 ? 'critical' : ($menu->stock <= 10 ? 'low' : 'ok');
-                            @endphp
-                            <span class="stock-display {{ $stockClass }}">{{ $menu->stock }}</span>
+                            <form action="{{ route('admin.menu.toggle_status', $menu) }}" method="POST" style="margin: 0;">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" class="status-badge {{ $menu->is_active ? 'status-ok' : 'status-out' }}" 
+                                    title="Klik untuk mengubah status menu">
+                                    {{ $menu->is_active ? 'Tersedia' : 'Tidak Tersedia' }}
+                                </button>
+                            </form>
                         </td>
                         <td>
                             <div class="action-btns">

@@ -11,7 +11,7 @@ class PageController extends Controller
 {
     public function index()
     {
-        $menus = Menu::take(3)->get();
+        $menus = Menu::where('is_active', true)->take(3)->get();
         $featuredMenus = $menus;
 
         return view('home', compact('featuredMenus'));

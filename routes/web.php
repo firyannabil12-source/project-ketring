@@ -56,6 +56,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/menu', [AdminController::class, 'storeMenu'])->name('menu.store');
         Route::get('/menu/{menu}/edit', [AdminController::class, 'editMenu'])->name('menu.edit');
         Route::put('/menu/{menu}', [AdminController::class, 'updateMenu'])->name('menu.update');
+        Route::patch('/menu/{menu}/toggle-status', [AdminController::class, 'toggleStatus'])->name('menu.toggle_status');
         Route::delete('/menu/{menu}', [AdminController::class, 'destroyMenu'])->name('menu.destroy');
 
         // Pesanan

@@ -50,12 +50,13 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:100',
             'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ]);
 
-        $data = $request->only(['name', 'category', 'price', 'stock', 'description']);
+        $data = $request->only(['name', 'category', 'price', 'description']);
+        $data['stock'] = 0; // Default stock value (ignored)
+        $data['is_active'] = $request->has('is_active');
 
         if ($request->hasFile('image')) {
             $imageName = time().'.'.$request->image->extension();
@@ -79,12 +80,12 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:100',
             'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ]);
 
-        $data = $request->only(['name', 'category', 'price', 'stock', 'description']);
+        $data = $request->only(['name', 'category', 'price', 'description']);
+        $data['is_active'] = $request->has('is_active');
 
         if ($request->hasFile('image')) {
             // Delete old image if needed (optional)
@@ -112,6 +113,13 @@ class AdminController extends Controller
         $menu->delete();
 
         return redirect()->route('admin.stok')->with('success', 'Menu berhasil dihapus!');
+    }
+
+    public function toggleStatus(Menu $menu)
+    {
+        $menu->update(['is_active' => !$menu->is_active]);
+
+        return back()->with('success', 'Status menu "' . $menu->name . '" berhasil diperbarui!');
     }
 
     // Pesanan Masuk

@@ -81,6 +81,51 @@
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
         }
 
+        .food-card.unavailable {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .food-card.unavailable:hover {
+            transform: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        }
+
+        .food-card.unavailable .food-img {
+            filter: grayscale(1);
+            opacity: 0.55;
+        }
+
+        .food-card.unavailable:hover .food-img {
+            transform: none;
+        }
+
+        .food-card.unavailable .food-category {
+            background: #e2e8f0;
+            color: #64748b;
+        }
+
+        .food-card.unavailable .food-name,
+        .food-card.unavailable .food-desc,
+        .food-card.unavailable .food-price,
+        .food-card.unavailable .food-price small {
+            color: #94a3b8;
+        }
+
+        .status-unavailable {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            z-index: 1;
+            background: #334155;
+            color: white;
+            border-radius: 999px;
+            padding: 0.35rem 0.7rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+        }
+
 
         .food-img-wrapper {
             position: relative;
@@ -180,8 +225,15 @@
         }
 
         .btn-add-cart:disabled {
-            opacity: 0.5;
+            background: #cbd5e1;
+            color: #64748b;
+            opacity: 1;
             cursor: not-allowed;
+        }
+
+        .btn-add-cart:disabled:hover {
+            background: #cbd5e1;
+            transform: none;
         }
 
         .btn-add-cart.adding {
@@ -430,11 +482,19 @@
             <!-- Menu Grid -->
             <div class="menu-grid" id="menuGrid">
                 @forelse($menus as $menu)
-                    <div class="food-card" data-category="{{ $menu->category }}" data-menu-id="{{ $menu->id }}"
+                    @php
+                        $isAvailable = (bool) $menu->is_active;
+                    @endphp
+                    <div class="food-card {{ $isAvailable ? '' : 'unavailable' }}"
+                        data-category="{{ $menu->category }}" data-menu-id="{{ $menu->id }}"
                         data-price="{{ (float) $menu->price }}" data-stock="{{ $menu->stock }}"
+                        data-available="{{ $isAvailable ? '1' : '0' }}"
                         id="menu-card-{{ $menu->id }}" onclick="openMenuDetail(this)">
 
                         <div class="food-img-wrapper">
+                            @unless ($isAvailable)
+                                <span class="status-unavailable">Tidak tersedia</span>
+                            @endunless
                             <img src="{{ Str::startsWith($menu->image, 'http') ? $menu->image : asset($menu->image) }}"
                                 alt="{{ $menu->name }}" class="food-img"
                                 onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80'">
@@ -449,15 +509,11 @@
                                     Rp {{ number_format($menu->price, 0, ',', '.') }}
                                     <small>/ porsi</small>
                                 </div>
-                                <button class="btn-add-cart" id="cart-btn-{{ $menu->id }}" @disabled($menu->stock <= 0)
-                                    onclick="event.stopPropagation(); handleAddToCart(this, {{ $menu->id }}, '{{ addslashes($menu->name) }}')">
-                                    @if ($menu->stock > 0)
-                                        <i data-lucide="shopping-cart"></i>
-                                        <span>Tambah</span>
-                                    @else
-                                        <i data-lucide="circle-alert"></i>
-                                        <span>Stok Habis</span>
-                                    @endif
+                                <button class="btn-add-cart" id="cart-btn-{{ $menu->id }}"
+                                     onclick="event.stopPropagation(); handleAddToCart(this, {{ $menu->id }}, '{{ addslashes($menu->name) }}')"
+                                    @disabled(!$isAvailable) aria-disabled="{{ $isAvailable ? 'false' : 'true' }}">
+                                    <i data-lucide="{{ $isAvailable ? 'shopping-cart' : 'ban' }}"></i>
+                                    <span>{{ $isAvailable ? 'Tambah' : 'Habis' }}</span>
                                 </button>
                             </div>
                         </div>
@@ -557,6 +613,11 @@
         // Add to Cart with animation
         function handleAddToCart(btn, menuId, menuName) {
             if (btn.disabled) return;
+            const card = document.getElementById(`menu-card-${menuId}`);
+            if (card?.dataset.available !== '1') {
+                showUserToast(`Menu "${menuName}" sedang tidak tersedia.`, 'error');
+                return;
+            }
             btn.disabled = true;
             btn.classList.add('adding');
             btn.innerHTML = '<i data-lucide="check"></i><span>Ditambahkan!</span>';
@@ -580,6 +641,12 @@
         }
 
         function openMenuDetail(card) {
+            if (card.dataset.available !== '1') {
+                const menuName = card.querySelector('.food-name')?.textContent.trim() || 'Menu ini';
+                showUserToast(`${menuName} sedang tidak tersedia.`, 'error');
+                return;
+            }
+
             const image = card.querySelector('.food-img');
             activeMenuDetail = {
                 id: Number(card.dataset.menuId),
@@ -598,8 +665,8 @@
             document.getElementById('menuModalPrice').textContent = formatRupiah(activeMenuDetail.price);
             document.getElementById('menuModalDesc').textContent = activeMenuDetail.desc;
             document.getElementById('menuModalCategory').textContent = activeMenuDetail.category;
-            document.getElementById('menuQty').value = Math.min(activeMenuDetail.stock || 10, Math.max(10, activeMenuDetail.stock >= 10 ? 10 : activeMenuDetail.stock || 1));
-            document.getElementById('menuQty').max = activeMenuDetail.stock || 10;
+            document.getElementById('menuQty').value = 10;
+            document.getElementById('menuQty').removeAttribute('max');
             document.getElementById('menuOrderNote').value = '';
             updateMenuSubtotal();
 
@@ -616,8 +683,7 @@
         function updateMenuSubtotal() {
             if (!activeMenuDetail) return;
             const qtyInput = document.getElementById('menuQty');
-            const maxQty = activeMenuDetail.stock || 10;
-            let qty = Math.max(10, Math.min(Number(qtyInput.value || 10), maxQty));
+            let qty = Math.max(10, Number(qtyInput.value || 10));
             qtyInput.value = qty;
             document.getElementById('menuModalSubtotal').textContent = formatRupiah(activeMenuDetail.price * qty, false);
         }

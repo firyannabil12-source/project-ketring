@@ -1,7 +1,7 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('page-title', $menu->exists ? 'Edit Menu' : 'Tambah Menu Baru')
-@section('breadcrumb', 'Kelola Stok')
+@section('breadcrumb', 'Kelola Menu')
 
 @section('styles')
     <style>
@@ -209,11 +209,16 @@
                         @enderror
                     </div>
 
+                    <!-- Status Aktif / Nonaktif -->
                     <div class="form-group">
-                        <label>Stok Tersedia *</label>
-                        <input type="number" name="stock" value="{{ old('stock', $menu->stock ?? 0) }}" placeholder="100"
-                            min="0" required>
-                        @error('stock')
+                        <label>Status Menu</label>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                            <input type="checkbox" name="is_active" id="isActiveInput" value="1" 
+                                {{ old('is_active', $menu->is_active ?? true) ? 'checked' : '' }}
+                                style="width: auto; cursor: pointer;">
+                            <label for="isActiveInput" style="text-transform: none; font-weight: 600; color: #334155; cursor: pointer; letter-spacing: normal;">Aktif (Menu dapat dipesan)</label>
+                        </div>
+                        @error('is_active')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
                     </div>

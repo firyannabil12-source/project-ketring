@@ -46,7 +46,8 @@ class DuitkuCallbackController extends Controller
             return response('Invalid signature', 400);
         }
 
-        $order = Order::find($merchantOrderId);
+        $orderId = preg_replace('/^ORD-/i', '', (string) $merchantOrderId);
+        $order = ctype_digit($orderId) ? Order::find((int) $orderId) : null;
 
         if (! $order) {
             Log::error('DUITKU CALLBACK ORDER NOT FOUND', ['merchantOrderId' => $merchantOrderId]);

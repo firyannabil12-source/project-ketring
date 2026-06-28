@@ -36,18 +36,17 @@ class CartController extends Controller
         ]);
 
         $menu = Menu::findOrFail($request->menu_id);
+        if (!$menu->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => "Menu \"{$menu->name}\" saat ini sedang tidak aktif / tidak tersedia.",
+            ], 422);
+        }
         $qty = (int) $request->input('quantity', 1);
 
         $cart = session('cart', []);
         $key = 'menu_'.$menu->id;
         $currentQty = $cart[$key]['quantity'] ?? 0;
-
-        if (($currentQty + $qty) > $menu->stock) {
-            return response()->json([
-                'success' => false,
-                'message' => "Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.",
-            ], 422);
-        }
 
         if (isset($cart[$key])) {
             $newQty = $currentQty + $qty;
@@ -112,15 +111,11 @@ class CartController extends Controller
             unset($cart[$key]);
         } elseif (isset($cart[$key])) {
             $menu = Menu::find($request->menu_id);
-            if (! $menu) {
+            if (! $menu || ! $menu->is_active) {
                 unset($cart[$key]);
-            } elseif ($request->quantity > $menu->stock) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.",
-                ], 422);
+            } else {
+                $cart[$key]['quantity'] = (int) $request->quantity;
             }
-            $cart[$key]['quantity'] = (int) $request->quantity;
         }
 
         session(['cart' => $cart]);
@@ -189,16 +184,12 @@ class CartController extends Controller
         foreach ($cart as $item) {
             $menu = $menus->get($item['menu_id']);
 
-            if (! $menu) {
-                return back()->with('error', 'Ada menu di keranjang yang sudah tidak tersedia. Silakan perbarui keranjang Anda.');
+            if (! $menu || ! $menu->is_active) {
+                return back()->with('error', 'Ada menu di keranjang yang sudah tidak aktif atau tidak tersedia. Silakan perbarui keranjang Anda.');
             }
 
             if ($item['quantity'] < 10) {
                 return back()->with('error', "Minimal pembelian untuk {$menu->name} adalah 10 porsi.");
-            }
-
-            if ($item['quantity'] > $menu->stock) {
-                return back()->with('error', "Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.");
             }
         }
 
@@ -231,8 +222,8 @@ class CartController extends Controller
                 foreach ($cart as $item) {
                     $menu = Menu::lockForUpdate()->findOrFail($item['menu_id']);
 
-                    if ($item['quantity'] > $menu->stock) {
-                        throw new \RuntimeException("Stok {$menu->name} tidak cukup. Sisa stok saat ini: {$menu->stock}.");
+                    if (!$menu->is_active) {
+                        throw new \RuntimeException("Menu {$menu->name} saat ini sedang tidak aktif / tidak tersedia.");
                     }
 
                     OrderItem::create([
@@ -241,8 +232,6 @@ class CartController extends Controller
                         'quantity' => $item['quantity'],
                         'price' => $item['price'],
                     ]);
-
-                    $menu->decrement('stock', $item['quantity']);
                 }
 
                 return $order;
@@ -269,7 +258,7 @@ class CartController extends Controller
             $timestamp = round(microtime(true) * 1000);
             $signature = hash_hmac('sha256', $merchantCode.$timestamp, $apiKey);
 
-            $merchantOrderId = (string) $order->id;
+            $merchantOrderId = 'ORD-'.$order->id;
             $paymentAmount = (int) $total;
 
             $params = [
