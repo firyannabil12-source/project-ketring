@@ -6,12 +6,15 @@ use App\Models\Menu;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class PageController extends Controller
 {
     public function index()
     {
-        $menus = Menu::where('is_active', true)->take(3)->get();
+        $menus = Menu::when(Schema::hasColumn('menus', 'is_active'), function ($query) {
+            $query->where('is_active', true);
+        })->take(3)->get();
         $featuredMenus = $menus;
 
         return view('home', compact('featuredMenus'));
