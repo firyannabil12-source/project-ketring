@@ -22,3 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Temporary/Debug scripts
+test_duitku.php
+check_hashes.php
+fix_admin_password.php
