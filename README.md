@@ -166,12 +166,5 @@ Aplikasi ini menggunakan beberapa tabel database utama untuk menampung data:
 
 ---
 
-## 📞 Kontak & Dukungan
-
-Jika Anda memiliki pertanyaan, saran pengembangan, atau menemukan kendala teknis saat instalasi, silakan hubungi tim pengembang:
-*   **Email**: support@rishacatering.com
-*   **Website**: [www.rishacatering.com](http://www.rishacatering.com)
-*   **Lokasi Dapur**: Parung, Bogor, Jawa Barat, Indonesia (Koordinat Dapur Pusat: `-6.410916, 106.757352`)
-
 ---
 *Proyek ini dikembangkan untuk kebutuhan operasional katering profesional berbasis otomatisasi wilayah pengiriman & sistem pembayaran instan.*
